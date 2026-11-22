@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=progress-cache"><link rel="modulepreload" href="./chunk-FXIPMOJF.js"><link rel="modulepreload" href="./chunk-ACNP23C5.js"><link rel="modulepreload" href="./chunk-BLEJMSPT.js"><link rel="modulepreload" href="./chunk-FTUHKZLF.js"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=radial-hud"><link rel="modulepreload" href="./chunk-W7LP5M6R.js"><link rel="modulepreload" href="./chunk-6OHOEANM.js"><link rel="modulepreload" href="./chunk-HVYIHU24.js"><link rel="modulepreload" href="./chunk-HQEUZOXK.js"></head>
 <body>
 <canvas id="court" aria-label="篮球场"></canvas>
 <header id="hud" hidden>
@@ -28,12 +28,18 @@
 <div id="touch-controls" hidden>
  <div id="touch-move" aria-label="左侧拖动移动，推满冲刺"><div id="touch-pad"><i id="touch-stick"></i></div></div>
  <div id="touch-actions">
-  <div id="touch-tactics" aria-label="球队战术" hidden><div id="touch-attack"></div><div id="touch-defense"></div></div>
+  <div id="touch-tactics" aria-label="球队战术" hidden>
+   <button id="touch-tactics-toggle" type="button" data-touch-action="tactics-toggle" aria-expanded="false">战术</button>
+   <div id="touch-tactics-drawer" hidden><div id="touch-attack"></div><div id="touch-defense"></div></div>
+  </div>
+  <div id="touch-radial" aria-hidden="true" hidden><span id="touch-radial-tip"></span><div id="touch-radial-items"></div></div>
   <div id="touch-buttons" role="group" aria-label="球场动作">
-   <button type="button" data-touch-action="fake" hidden>假投</button><button type="button" data-touch-action="switch" hidden>换手</button><button type="button" data-touch-action="ultimate" hidden>必杀</button>
-   <button type="button" data-touch-action="team-action" hidden>挡拆</button><button type="button" data-touch-action="request-ball" hidden>要球</button><button type="button" data-touch-action="lob" hidden>抛传</button>
-   <button type="button" data-touch-action="layup" data-touch-look hidden>上篮</button><button type="button" data-touch-action="dunk" data-touch-look hidden>扣篮</button><button type="button" data-touch-action="low-shot" data-touch-look hidden>低弧</button>
-   <button type="button" data-touch-action="tab" hidden>传球</button><button type="button" data-touch-action="reset" hidden>重置</button><button type="button" data-touch-action="jump">起跳</button><button type="button" data-touch-action="primary" data-touch-look>投篮</button>
+   <button type="button" data-touch-action="ultimate" hidden>必杀</button>
+   <button type="button" data-touch-action="switch" hidden>变向</button>
+   <button type="button" data-touch-action="tab" hidden>传球</button>
+   <button type="button" data-touch-action="reset" hidden>重置</button>
+   <button type="button" data-touch-action="jump">起跳</button>
+   <button type="button" data-touch-action="primary" data-touch-look>投篮</button>
   </div>
  </div>
 </div>
@@ -131,4 +137,4 @@
   if(!window.__lqsnMenuReady)showBootError('菜单加载超时，请检查网络后点击刷新重试。');
  },45000);
 })();
-</script><script type="module" src="play.js?v=queued-fetch" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>
+</script><script type="module" src="play.js?v=radial-hud" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>

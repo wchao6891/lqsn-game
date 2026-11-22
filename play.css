@@ -359,77 +359,115 @@ body[data-touch-input]{--court-safe-top:env(safe-area-inset-top,0px);--court-saf
 [data-touch-input] #hud .player-hud{min-width:0;padding:4px}
 [data-touch-input] #hud .player-hud img{width:34px;height:40px}
 [data-touch-input] #hud .player-hud span,[data-touch-input] #hud .player-hud>b{display:none}
-[data-touch-input] #opponent-hud{justify-self:end;margin-top:46px}
+[data-touch-input] #opponent-hud{justify-self:end;margin-top:42px}
 [data-touch-input] #tools{
  top:calc(var(--court-safe-top) + 8px);right:calc(env(safe-area-inset-right,0px) + 8px);gap:4px
 }
-[data-touch-input] #tools button{width:40px;height:40px;color:#fff5e0;background:#171b25e8;border:1px solid #edb34e91}
-[data-touch-input] #match-notices{gap:5px 8px}
-[data-touch-input] #match-announcement{font-size:clamp(18px,4.7vw,25px)}
+[data-touch-input] #tools button{width:36px;height:36px;color:#fff5e0;background:#171b25cc;border:1px solid #edb34e78}
+[data-touch-input] #match-notices{gap:4px 6px}
+[data-touch-input] #match-announcement{font-size:clamp(16px,4.2vw,22px);padding:4px 10px 5px}
 [data-touch-input] #player-resources{
- bottom:calc(var(--court-safe-bottom) + 7px);width:min(298px,calc(100% - 24px));padding:5px 9px;gap:4px 7px
+ left:calc(env(safe-area-inset-left,0px) + 10px);transform:none;
+ bottom:calc(var(--court-safe-bottom) + 6px);width:min(178px,44vw);padding:4px 7px;gap:2px 6px;
+ background:#171b25b8;border-color:#edb34e55
 }
-[data-touch-input] #ultimate-indicator{grid-template-columns:32px}
-[data-touch-input] #ultimate-key{display:none}
-[data-touch-input] #shot-meter{top:54%;width:min(184px,48vw)}
+[data-touch-input] .resource-row{grid-template-columns:2em minmax(0,1fr) 3.2em;gap:5px;font-size:11px;line-height:13px}
+[data-touch-input] .resource-track{height:6px}
+[data-touch-input] #ultimate-indicator{grid-template-columns:24px}
+[data-touch-input] #my-ultimate-icon{width:24px;height:24px}
+[data-touch-input] #ultimate-key,[data-touch-input] #ultimate-hint{display:none}
+[data-touch-input] #shot-meter{top:52%;width:min(168px,44vw)}
 [data-touch-input] #drill-status{
- top:calc(var(--court-safe-top) + 83px);bottom:auto;left:calc(env(safe-area-inset-left,0px) + 10px);padding:7px 10px
+ top:calc(var(--court-safe-top) + 78px);bottom:auto;left:calc(env(safe-area-inset-left,0px) + 10px);padding:6px 9px
 }
 [data-touch-input] #practice-tools,[data-touch-input] #controls{display:none}
 #touch-controls{position:fixed;inset:0;z-index:16;pointer-events:none;user-select:none;-webkit-user-select:none}
 #touch-move{position:absolute;inset:0 50% 0 0;pointer-events:auto}
 #touch-pad{
- position:absolute;left:calc(env(safe-area-inset-left,0px) + 65px);top:calc(100% - var(--court-safe-bottom) - 126px);
- transform:translate(-50%,-50%);width:96px;aspect-ratio:1;border:2px solid #f9d68483;border-radius:50%;
- background:#171b2566;box-shadow:inset 0 0 0 8px #211d2840;pointer-events:none
+ position:absolute;left:calc(env(safe-area-inset-left,0px) + 68px);top:calc(100% - var(--court-safe-bottom) - 108px);
+ transform:translate(-50%,-50%);width:96px;aspect-ratio:1;border:2px solid #f9d68475;border-radius:50%;
+ background:#171b2548;box-shadow:inset 0 0 0 8px #211d2830;pointer-events:none;
+ opacity:.16;transition:opacity .16s ease-out
 }
+#touch-pad[data-active]{opacity:.92}
 #touch-stick{
- position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;aspect-ratio:1;
- border-radius:50%;border:2px solid #ffe1a9;background:#1c2334db
+ position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:38px;aspect-ratio:1;
+ border-radius:50%;border:2px solid #ffe1a9;background:#1c2334cc
 }
 #touch-pad[data-sprint] #touch-stick{background:#ffc05a;border-color:#fff4c5}
 #touch-buttons{
- position:absolute;right:calc(env(safe-area-inset-right,0px) + 11px);bottom:calc(var(--court-safe-bottom) + 70px);
- display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(4,45px);gap:5px;
- grid-template-areas:"fake switch ultimate" "tactic request lob" "layup dunk low" "tab jump primary"
+ position:absolute;right:calc(env(safe-area-inset-right,0px) + 12px);bottom:calc(var(--court-safe-bottom) + 16px);
+ width:168px;height:208px;pointer-events:none
 }
 #touch-actions button{
- pointer-events:auto;color:#fff5e0;background:#171b25e8;border:1px solid #edb34e91;
- border-bottom:2px solid var(--accent);font-weight:800;font-size:13px;line-height:1.1;
+ pointer-events:auto;color:#fff5e0;background:#171b259e;border:1.5px solid #edb34e88;
+ font-weight:800;font-size:13px;line-height:1.1;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
  -webkit-tap-highlight-color:transparent
 }
-#touch-buttons button{border-radius:50%}
-#touch-buttons button:disabled{opacity:.48}
-#touch-actions button:is(:active,[aria-pressed=true]){background:#ffc05a;color:#201c22;border-color:#fff3c4}
-#touch-buttons [data-touch-action="primary"]{grid-area:primary;background:#ffd171;color:#231a16;border-color:#fff2c2}
-#touch-buttons [data-touch-action="primary"]:active{background:#ffe09d}
-#touch-buttons [data-touch-action="jump"]{grid-area:jump}
-#touch-buttons [data-touch-action="tab"],#touch-buttons [data-touch-action="reset"]{grid-area:tab}
-#touch-buttons [data-touch-action="fake"]{grid-area:fake}
-#touch-buttons [data-touch-action="switch"]{grid-area:switch}
-#touch-buttons [data-touch-action="ultimate"]{grid-area:ultimate}
-#touch-buttons [data-touch-action="team-action"]{grid-area:tactic}
-#touch-buttons [data-touch-action="request-ball"]{grid-area:request}
-#touch-buttons [data-touch-action="lob"]{grid-area:lob}
-#touch-buttons [data-touch-action="layup"]{grid-area:layup}
-#touch-buttons [data-touch-action="dunk"]{grid-area:dunk}
-#touch-buttons [data-touch-action="low-shot"]{grid-area:low}
+#touch-buttons button{
+ position:absolute;border-radius:50%;width:52px;height:52px;
+ display:grid;place-items:center;padding:0;box-shadow:0 3px 10px #00000044
+}
+#touch-buttons button:disabled{opacity:.38}
+#touch-actions button:is(:active,[aria-pressed=true]){background:#ffc05ad9;color:#201c22;border-color:#fff3c4}
+#touch-buttons [data-touch-action="primary"]{
+ right:0;bottom:0;width:66px;height:66px;font-size:15px;
+ background:linear-gradient(155deg,#ffd980d9,#e88d52d9);color:#231811;border:2px solid #fff3c9
+}
+#touch-buttons [data-touch-action="primary"]:active{background:#ffe5a6}
+#touch-buttons [data-touch-action="jump"]{right:4px;bottom:82px}
+#touch-buttons [data-touch-action="switch"]{right:72px;bottom:68px}
+#touch-buttons [data-touch-action="tab"],#touch-buttons [data-touch-action="reset"]{right:84px;bottom:4px}
+#touch-buttons [data-touch-action="ultimate"]{
+ right:68px;bottom:134px;width:52px;height:52px;
+ background:linear-gradient(145deg,#ffe28ae6,#f39a3ee6);color:#23160c;border:2px solid #fff6d2;
+ box-shadow:0 0 16px #ffcf6699
+}
+#touch-buttons [data-has-radial="true"]::after{
+ content:"";position:absolute;top:5px;left:50%;transform:translateX(-50%);
+ width:14px;height:2.5px;border-radius:99px;background:#ffe09aaa
+}
+#touch-radial{
+ position:fixed;z-index:20;width:0;height:0;pointer-events:none
+}
+#touch-radial::before{
+ content:"";position:absolute;left:-76px;top:-76px;width:152px;height:152px;border-radius:50%;
+ border:1.5px dashed #ffd98877;background:radial-gradient(circle,#171b2520 28%,#171b2599 100%)
+}
+#touch-radial-tip{
+ position:absolute;left:0;top:-112px;transform:translateX(-50%);
+ padding:3px 10px;border-radius:999px;background:#171b25e8;color:#ffe09a;
+ border:1px solid #edb34e99;font-size:12px;font-weight:800;white-space:nowrap
+}
+#touch-radial-items{position:absolute;inset:0}
+.touch-radial-chip{
+ position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+ display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff5e0;
+ background:#171b25dd;border:1.5px solid #edb34e88;transition:transform .08s,background .08s
+}
+.touch-radial-chip[data-selected="true"]{
+ background:#ffc05a;color:#201811;border-color:#fff5cf;transform:scale(1.16);
+ box-shadow:0 0 14px #ffc05aaa
+}
 #touch-tactics{
- position:absolute;bottom:calc(var(--court-safe-bottom) + 270px);
- inset-inline:calc(env(safe-area-inset-left,0px) + 8px) calc(env(safe-area-inset-right,0px) + 8px);
- display:grid;gap:4px;justify-items:center
+ position:absolute;top:calc(var(--court-safe-top) + 50px);right:calc(env(safe-area-inset-right,0px) + 8px);
+ display:grid;justify-items:end;gap:5px;pointer-events:none
 }
-#touch-tactics>div{display:flex;justify-content:center;flex-wrap:wrap;gap:4px}
-#touch-tactics button{min-height:36px;padding:5px 9px;clip-path:var(--cut);white-space:nowrap}
-@media(orientation:landscape){
- #touch-tactics{
-  bottom:calc(var(--court-safe-bottom) + 74px);
-  left:calc(env(safe-area-inset-left,0px) + 126px);right:calc(env(safe-area-inset-right,0px) + 174px)
- }
+#touch-tactics-toggle{
+ min-height:28px;padding:3px 10px;border-radius:999px;font-size:12px;
+ background:#171b25b8;border:1px solid #edb34e78
 }
+#touch-tactics-drawer{
+ display:grid;gap:4px;padding:6px;border-radius:8px;
+ background:#141924e6;border:1px solid #edb34e66;pointer-events:auto
+}
+#touch-tactics-drawer[hidden]{display:none}
+#touch-tactics-drawer>div{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:4px}
+#touch-tactics-drawer button{min-height:30px;padding:4px 8px;border-radius:6px;font-size:12px;white-space:nowrap}
 @media(max-width:430px){
  [data-touch-input] #fullscreen{display:none}
 }
-@media(orientation:landscape) and (max-height:350px){
- #touch-buttons{bottom:calc(var(--court-safe-bottom) + 63px);grid-template-rows:repeat(4,42px);gap:4px}
+@media(orientation:landscape) and (max-height:380px){
+ #touch-buttons{bottom:calc(var(--court-safe-bottom) + 10px);transform:scale(.9);transform-origin:right bottom}
+ #touch-tactics{top:calc(var(--court-safe-top) + 46px)}
 }
