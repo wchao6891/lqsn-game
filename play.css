@@ -284,6 +284,7 @@ h1{font-size:38px;font-style:italic;letter-spacing:.03em;margin:8px 0}h2{font-si
 #attack-direction{position:fixed;z-index:10;width:clamp(24px,4vmin,36px);aspect-ratio:3/4;background:#ffe0a4;opacity:.85;pointer-events:none;transform:translate(-50%,-50%) rotate(var(--attack-angle));clip-path:polygon(50% 0,100% 47%,68% 47%,68% 100%,32% 100%,32% 47%,0 47%)}
 @media(prefers-reduced-motion:reduce){#opening-tip-cue::before{transform:none}}
 #catch-hint{position:fixed;z-index:12;transform:translate(-50%,-50%);padding:2px 9px;border-radius:999px;background:#10221de6;color:#b8ffdd;font-size:12px;font-weight:750;white-space:nowrap;pointer-events:none;border:1px solid #8ff0c044}
+#catch-hint[data-cue="hold"]{left:50%;top:calc(50% + 32px);padding:4px 11px;font-size:clamp(16px,1.5vw,22px)}
 @media(prefers-reduced-motion:reduce){#match-announcement[data-warning="backcourt"] #match-announcement-label{animation:none}}
 
 #finish .dialog:has(#finish-box-score:not([hidden])){width:min(830px,94vw);gap:9px}
