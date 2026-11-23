@@ -166,8 +166,29 @@ h1{font-size:38px;font-style:italic;letter-spacing:.03em;margin:8px 0}h2{font-si
 .lineup-actions{display:flex;flex-wrap:wrap;gap:5px}
 .lineup-actions button{flex:1 1 auto;min-width:0;min-height:42px;padding:4px 3px;background:var(--accent);color:#211a13;font-size:12px;font-weight:800;overflow-wrap:anywhere}
 .lineup-actions button:disabled{background:#445870;color:#e1ebf3}
+@media(min-width:801px){
+ .lineup-toolbar{margin:8px 0}
+ .lineup-toolbar .five-header{margin-inline-end:auto}
+ #five-paces{margin:0}
+ #lineup-note:empty{display:none}
+ .lineup-layout{align-items:stretch;margin-top:0}
+ .lineup-board,.lineup-detail{display:flex;flex-direction:column}
+ #lineup-court{flex:1}
+ .lineup-slot img{width:64px;height:clamp(32px,7dvh,58px)}
+ .lineup-slot-role,.lineup-slot-name{font-size:11px}
+ #lineup-players{--roster-art-height:clamp(52px,11dvh,100px)}
+ .lineup-option{grid-template-rows:var(--roster-art-height) minmax(25px,auto) auto;padding:4px;align-items:center}
+ .lineup-option img{height:var(--roster-art-height)}
+ .lineup-option-name,.lineup-option-role{font-size:12px}
+ .lineup-art{flex:none;width:min(43%,108px)}
+ #lineup-portrait{display:block;width:100%;height:clamp(98px,19dvh,178px);background:#1c293b}
+ #lineup-name{font-size:18px}
+ #lineup-radar{height:clamp(110px,20dvh,164px)}
+ .lineup-actions{margin-top:auto}
+}
 @media(max-width:800px){
  #menu.roster-menu .setup{padding:13px}
+ #five-paces{flex-basis:100%}
  .lineup-layout{grid-template-columns:minmax(0,1fr) minmax(0,.85fr);gap:9px}
  .lineup-board{grid-column:1;grid-row:1}.lineup-detail{grid-column:2;grid-row:1}
  .lineup-roster{grid-column:1/-1;grid-row:2}

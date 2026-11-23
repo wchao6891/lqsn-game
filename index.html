@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=bbb9fe3da1"><link rel="modulepreload" href="./chunk-AABGBGNZ.js"><link rel="modulepreload" href="./chunk-3ZTFLBGQ.js"><link rel="modulepreload" href="./chunk-WS4UZO47.js"><link rel="modulepreload" href="./chunk-XQ5YSLWG.js"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=d03b5bba6f"><link rel="modulepreload" href="./chunk-TIQR3UCD.js"><link rel="modulepreload" href="./chunk-EH5H2VYL.js"><link rel="modulepreload" href="./chunk-WACUD5DW.js"><link rel="modulepreload" href="./chunk-I5KF3HTI.js"></head>
 <body>
 <canvas id="court" aria-label="篮球场"></canvas>
 <header id="hud" hidden>
@@ -53,9 +53,9 @@
   <h1 id="setup-title" hidden>动作测试</h1>
   <div id="play-modes" class="play-modes" role="group" aria-label="游戏模式"><button data-format="5v5" aria-pressed="true">5v5 全场</button><button data-format="3v3" aria-pressed="false">3v3 半场</button><button data-format="1v1" aria-pressed="false">1v1</button><button data-mode="shooting" aria-pressed="false">投篮</button></div>
   <select id="lab-setup" class="lab-select" aria-label="测试场景" hidden></select>
-  <div id="five-paces" class="mode-options" aria-label="5v5 比赛节奏" hidden><button data-pace="quick" aria-pressed="true">快速赛</button><button data-pace="standard" aria-pressed="false">标准赛</button></div>
   <div id="five-setup" hidden>
    <div class="lineup-toolbar">
+    <div id="five-paces" class="mode-options" aria-label="5v5 比赛节奏" hidden><button data-pace="quick" aria-pressed="true">快速赛</button><button data-pace="standard" aria-pressed="false">标准赛</button></div>
     <div class="five-header"><label id="team-name-field">队名<input id="team-name" type="text" placeholder="我的球队" dir="auto"></label><button id="open-standings" type="button">积分榜</button></div>
     <div id="opponent-modes" class="mode-options" role="group" aria-label="电脑对手选法"><button data-opponent="random" aria-pressed="true">随机对手</button><button data-opponent="manual" aria-pressed="false">手选对手</button></div>
    </div>
@@ -63,7 +63,7 @@
     <section class="lineup-board" aria-label="首发站位"><div id="lineup-sides" class="mode-options" role="group" aria-label="正在布阵的球队" hidden><button data-lineup-side="0" aria-pressed="true">我方</button><button data-lineup-side="1" aria-pressed="false">对手</button></div><div id="lineup-court" role="group" aria-label="半场五个位置"></div></section>
     <section class="lineup-roster" aria-label="球员"><div id="lineup-players" role="group" aria-label="查看球员能力"></div></section>
     <section class="lineup-detail" aria-labelledby="lineup-name">
-     <header><img id="lineup-portrait" alt=""><div><h2 id="lineup-name"></h2><small id="lineup-role"></small></div></header>
+     <header><picture class="lineup-art"><source id="lineup-art-source" media="(min-width:801px)"><img id="lineup-portrait" alt=""></picture><div><h2 id="lineup-name"></h2><small id="lineup-role"></small></div></header>
      <svg id="lineup-radar" viewBox="0 0 236 186" role="img"></svg>
      <p class="lineup-skill"><img id="lineup-skill-icon" alt=""><strong id="lineup-skill-name"></strong></p>
      <div class="lineup-actions"><button id="lineup-assign" type="button">安排首发</button><button id="lineup-captain" type="button">设为主控</button></div>
@@ -137,4 +137,4 @@
   if(!window.__lqsnMenuReady)showBootError('菜单加载超时，请检查网络后点击刷新重试。');
  },45000);
 })();
-</script><script type="module" src="play.js?v=bbb9fe3da1" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>
+</script><script type="module" src="play.js?v=d03b5bba6f" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>

@@ -1,5 +1,5 @@
-const APP_CACHE='lqsn-app-633139054f15';
-const ASSET_CACHE='lqsn-assets-8425377fc89e';
+const APP_CACHE='lqsn-app-7cc5591f0306';
+const ASSET_CACHE='lqsn-assets-7b542bf4e7bb';
 const KEEP=new Set([APP_CACHE,ASSET_CACHE]);
 const SCOPE=new URL('./',self.location.href).pathname;
 self.addEventListener('install',()=>self.skipWaiting());
