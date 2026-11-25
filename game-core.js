@@ -209,7 +209,53 @@ if(l.kind==="shooting-support")return n.resonanceShooting||t.mustClear||t.team.r
   tt(game,actor,rim,release))return null;
  return P('receive',actor,0);
 }
-function Oc(e,t,n){let i=e.ball,o=n.next-e.time,r=e.time-t.heldAt;if(e.team.format!=="5v5"||e.teamExercise||e.inbound||e.freeThrows||e.mustClear||!e.courtProgress?.front||i.state!=="held"||i.owner!==t.id||!i.liveReception||i.movingCatch||cs.has(i)||!(r>=a.catchTime&&r<a.catchTime+n.react&&o>0)||t.state!=="idle"||t.air||t.offBalance||t.passMotion||t.shot||t.ultimate||t.cooldown>0||e.teamScreen?.request&&e.teamScreen.owner===t.id||e.offBallScreen?.owner===t.id||st(e,t.team)||t.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(t.ability.staminaEfficiency??1))return null;let s=nt(e,t.team);if(s&&s!=="balanced")return null;let l=Y(t),c=z(t,l),f=t.courtFooting??t,m=t.velocity;if(c<=a.layupRange||c>a.normalRange||ie(t,f)||!Ic(e,t,n,f,o))return null;let p=Re().ideal,u=Math.min(e.shotClock,e.team.remaining),x=$(t,l);if(u<=A.shotUrgency||Qe-e.laneSeconds[t.id]<=p+o||Math.abs(m.x*x.z-m.z*x.x)*p>a.bodyRadius||(m.x*x.x+m.z*x.z)*p<-a.bodyRadius)return null;let h=Z(e,t);if(!h)return null;let y=z(t,h);if(y<a.contestRange)return null;let b=h.x-t.x,v=h.z-t.z,d=h.velocity.x-m.x,R=h.velocity.z-m.z,k=d*d+R*R,M=k?Math.max(0,Math.min(p,-(b*d+v*R)/k)):0,S=Math.hypot(b+d*M,v+R*M),B=e.team.difficulty==="legend"&&n.role==="shooter"&&y>=a.contestRange*2;return S<A.reachRange||S>=a.contestRange&&!B||(cs.add(i),tt(e,t,l,p))||V(e).some(F=>{if(F===t||F.team!==t.team)return!1;let O=Je(e,t,F,u,["direct","lob"],{closing:!0,outside:!0});if(!O)return!1;let E=O.catchPoint??F,U=Z(e,{...E,team:F.team});return z(E,U)>=y+a.bodyRadius})?null:P("shoot",t,0,{key:"jump"})}function Uc(e,t){let n=e.ball;if(e.team.format!=="5v5"||e.team.difficulty!=="legend"||e.teamExercise||e.inbound||e.freeThrows||n.owner!==t.id||n.state!=="held"||!n.liveReception||n.movingCatch||!(e.time-t.heldAt>=a.catchTime&&e.time<t.protectedUntil)||!["idle","receive"].includes(t.state)||t.air||t.offBalance||t.passMotion||t.shot||t.ultimate||t.cooldown>0||e.teamScreen?.request&&e.teamScreen.owner===t.id||e.offBallScreen?.owner===t.id||st(e,t.team)||Math.min(e.shotClock,e.team.remaining)<=A.shotUrgency)return null;let i=nt(e,t.team);if(i&&i!=="balanced")return null;let o=Z(e,t);if(o?.state!=="steal"||o.contact)return null;let r=z(t,o);if(r>A.reachRange)return null;let s=o.age*o.ability.stealRate;if(s<a.stealActiveStart||a.stealActiveEnd-s<=Ce(Ae.direct)*o.ability.stealRate)return null;let l=e.poses?.[o.id]?.hands?.[o.reachHand],c=T.radius+T.handRadius+T.contactTolerance+a.bodyRadius;if(!l||Math.hypot(l.x-n.x,l.y-n.y,l.z-n.z)>c)return null;let f=V(e).filter(p=>p!==t&&p.team===t.team&&!p.air&&!p.offBalance&&!p.ultimate),m=et(e,t,f,p=>{let u=z(p,Z(e,p));return u>=Qi&&u>r?$e(e,t,p,u):-1/0},"direct",!0);return m?He(m,"reach-outlet"):null}var Hc=[({g:e,a:t})=>_r(e,t),Ll,Nl,kc,Mc,Sc,Fs,Tc,hs,Zi,$i,Bs,vc,Dc];function blockLandingCanPursue(g,a,mind){
+function Oc(e,t,n){let i=e.ball,o=n.next-e.time,r=e.time-t.heldAt;if(e.team.format!=="5v5"||e.teamExercise||e.inbound||e.freeThrows||e.mustClear||!e.courtProgress?.front||i.state!=="held"||i.owner!==t.id||!i.liveReception||i.movingCatch||cs.has(i)||!(r>=a.catchTime&&r<a.catchTime+n.react&&o>0)||t.state!=="idle"||t.air||t.offBalance||t.passMotion||t.shot||t.ultimate||t.cooldown>0||e.teamScreen?.request&&e.teamScreen.owner===t.id||e.offBallScreen?.owner===t.id||st(e,t.team)||t.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(t.ability.staminaEfficiency??1))return null;let s=nt(e,t.team);if(s&&s!=="balanced")return null;let l=Y(t),c=z(t,l),f=t.courtFooting??t,m=t.velocity;if(c<=a.layupRange||c>a.normalRange||ie(t,f)||!Ic(e,t,n,f,o))return null;let p=Re().ideal,u=Math.min(e.shotClock,e.team.remaining),x=$(t,l);if(u<=A.shotUrgency||Qe-e.laneSeconds[t.id]<=p+o||Math.abs(m.x*x.z-m.z*x.x)*p>a.bodyRadius||(m.x*x.x+m.z*x.z)*p<-a.bodyRadius)return null;let h=Z(e,t);if(!h)return null;let y=z(t,h);if(y<a.contestRange)return null;let b=h.x-t.x,v=h.z-t.z,d=h.velocity.x-m.x,R=h.velocity.z-m.z,k=d*d+R*R,M=k?Math.max(0,Math.min(p,-(b*d+v*R)/k)):0,S=Math.hypot(b+d*M,v+R*M),B=e.team.difficulty==="legend"&&n.role==="shooter"&&y>=a.contestRange*2;return S<A.reachRange||S>=a.contestRange&&!B||(cs.add(i),tt(e,t,l,p))||V(e).some(F=>{if(F===t||F.team!==t.team)return!1;let O=Je(e,t,F,u,["direct","lob"],{closing:!0,outside:!0});if(!O)return!1;let E=O.catchPoint??F,U=Z(e,{...E,team:F.team});return z(E,U)>=y+a.bodyRadius})?null:P("shoot",t,0,{key:"jump"})}function closingOnCatch(carrier,defender,release){
+ if(defender.state!=='idle'||!defender.moving||defender.air||defender.offBalance||defender.ultimate)return false;
+ const toCarrier=$(defender,carrier);
+ if(defender.face.x*toCarrier.x+defender.face.z*toCarrier.z<a.defensiveCone)return false;
+ const x=defender.x-carrier.x,z=defender.z-carrier.z;
+ const vx=defender.velocity.x-carrier.velocity.x,vz=defender.velocity.z-carrier.velocity.z;
+ const closer=x*vx+z*vz;
+ if(closer>=0)return false;
+ const at=Math.min(release,-closer/(vx*vx+vz*vz));
+ return Math.hypot(x+vx*at,z+vz*at)<=A.reachRange;
+}
+
+function Uc(g,carrier){
+ const ball=g.ball;
+ if(g.team.format!=='5v5'||g.team.difficulty!=='legend'||g.teamExercise||g.inbound||g.freeThrows||
+  ball.owner!==carrier.id||ball.state!=='held'||!ball.liveReception||ball.movingCatch||
+  !(g.time-carrier.heldAt>=a.catchTime&&g.time<carrier.protectedUntil)||
+  !['idle','receive'].includes(carrier.state)||carrier.air||carrier.offBalance||carrier.passMotion||carrier.shot||carrier.ultimate||carrier.cooldown>0||
+  g.teamScreen?.request&&g.teamScreen.owner===carrier.id||g.offBallScreen?.owner===carrier.id||st(g,carrier.team)||
+  Math.min(g.shotClock,g.team.remaining)<=A.shotUrgency)return null;
+ const tactic=nt(g,carrier.team);
+ if(tactic&&tactic!=='balanced')return null;
+ const defender=Z(g,carrier);
+ if(!defender)return null;
+ const pressure=z(carrier,defender);
+ const release=Ce(Ae.direct);
+ const reaching=defender.state==='steal';
+ if(reaching){
+  if(defender.contact||pressure>A.reachRange)return null;
+  const phase=defender.age*defender.ability.stealRate;
+  if(phase<a.stealActiveStart||a.stealActiveEnd-phase<=release*defender.ability.stealRate)return null;
+  const hand=g.poses?.[defender.id]?.hands?.[defender.reachHand];
+  const reach=T.radius+T.handRadius+T.contactTolerance+a.bodyRadius;
+  if(!hand||Math.hypot(hand.x-ball.x,hand.y-ball.y,hand.z-ball.z)>reach)return null;
+ }else if(!carrier.teamBrain.difficulty||pressure>A.reachRange+a.bodyRadius||!closingOnCatch(carrier,defender,release))return null;
+ // Use carrier normal He while the catch grace is nearly gone, only if its
+ // lane and the teammate's room to take the next action are clear.
+ const options=V(g).filter(p=>p!==carrier&&p.team===carrier.team&&!p.air&&!p.offBalance&&!p.ultimate);
+ const receiver=et(g,carrier,options,p=>{
+  const space=z(p,Z(g,p));
+  return space>pressure&&(reaching?space>=Qi:space>=a.contestRange&&jl(g,carrier,p,'direct',a.contestRange,a.layupRange))
+   ?$e(g,carrier,p,space):-Infinity;
+ },'direct',true);
+ return receiver?He(receiver,reaching?'reach-outlet':'pressure-outlet'):null;
+}
+
+var Hc=[({g:e,a:t})=>_r(e,t),Ll,Nl,kc,Mc,Sc,Fs,Tc,hs,Zi,$i,Bs,vc,Dc];function blockLandingCanPursue(g,a,mind){
  const ball=g.ball;
  if(ball.state!=='loose'||ball.blockedBy!==a.id||g.team.format!=='5v5'||g.teamExercise||ball.shootingFoul||
   a.state!=='idle'||a.age!==0||a.previousState!=='block'||a.air||a.offBalance||mind.intent.kind!=='recover-shape')return false;
