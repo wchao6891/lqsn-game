@@ -274,6 +274,8 @@ function Zi(e){var Te;let{g:t,a:n,mind:i,hoop:o,anchor:r,pool:s,owner:l,tactic:c
    if(continuation&&continuation!==Fe)return continuation;
   }
  }
+
+const catchShot=jumpAsRunningCatchSettles(e,f,p,h,R);if(catchShot)return catchShot;
 if(q&&E&&X&&(t.ball.offBallSlip||t.ball.screenRoll||t.ball.backdoor)){let D=(t.ball.screenRoll||t.ball.backdoor)&&ke(t,n,o),L=t.ball.backdoor?a.layupRange-a.bodyRadius*2:a.layupRange;if(f<=L&&(t.ball.offBallSlip||D))return P("finish",o,1,{key:"layup"});if(D&&f<=a.layupRange+a.contestRange&&h>A.shotUrgency)return P("drive",o)}
  if(t.ball.screenRoll&&t.team.format==='5v5'&&t.courtProgress?.front&&!t.teamExercise&&!R&&(!c||c==='balanced')&&
   E&&!u&&f>a.layupRange&&f<=a.normalRange&&
@@ -554,6 +556,39 @@ function defenderRoomAtPoint(defender,point,from,to){
  const time=Math.min(stop,Math.max(from,Math.min(to,nearest)));
  return Math.hypot(dx+vx*time,dz+vz*time);
 }
+function reachHandNearBall(game,defender){
+ const hand=game.poses?.[defender.id]?.hands?.[defender.reachHand],ball=game.ball;
+ const reach=T.radius+T.handRadius+T.contactTolerance+a.bodyRadius;
+ return Boolean(hand&&Math.hypot(hand.x-ball.x,hand.y-ball.y,hand.z-ball.z)<=reach);
+}
+function jumpAsRunningCatchSettles(context,range,space,deadline,instruction){
+ const {g:game,a:actor,hoop,tactic}=context;
+ const ball=game.ball,screen=game.teamScreen;
+ if(game.team.format!=='5v5'||game.team.difficulty!=='legend'||game.teamExercise||game.inbound||!game.courtProgress?.front||
+  !ball.liveReception||!ball.movingCatch||ball.movingCatch.handoff||ball.screenRoll||ball.screenPop||ball.offBallSlip||ball.backdoor||
+  ball.offBall||ball.driveKick||
+  tactic&&tactic!=='balanced'||instruction||game.offBallScreen?.owner===actor.id||screen?.owner===actor.id&&screen.phase!=='expired'||
+  actor.state!=='idle'||actor.previousState!=='receive'||actor.age!==0||actor.air||actor.offBalance||actor.passMotion||actor.shot||actor.ultimate||actor.cooldown>0||
+  range<=a.layupRange||range>a.normalRange||space<A.reachRange+a.bodyRadius||deadline<=A.shotUrgency||
+  actor.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(actor.ability.staminaEfficiency??1))return null;
+ const release=Re().ideal,toward=$(actor,hoop);
+ if(Qe-game.laneSeconds[actor.id]<=release||actor.face.x*toward.x+actor.face.z*toward.z<a.defensiveCone||
+  !squareForPullUp(actor,toward,release)||tt(game,actor,hoop,release))return null;
+ // The receiver has planted after the catch. A defender may cut off the
+ // next drive without getting close enough to reach the planted jumper.
+ const speed=Math.max(actor.ability.moveSpeed,Math.hypot(actor.velocity.x,actor.velocity.z));
+ const target=Ge(hoop,actor,(a.layupRange-a.bodyRadius)/range);
+ if(ht(game,actor,target,speed,z(actor,target)/speed)>=a.bodyRadius*2)return null;
+ if(V(game).some(d=>{
+  if(d.team===actor.team||d.offBalance)return false;
+  if(defenderRoomAtPoint(d,actor,0,release)<A.reachRange)return true;
+  if(d.state!=='steal'||d.contact)return false;
+  const rate=d.ability.stealRate,afterGrace=Math.max(0,actor.protectedUntil-game.time);
+  return d.age+release>=a.stealActiveStart/rate&&d.age+afterGrace<=a.stealActiveEnd/rate&&afterGrace<release&&
+   reachHandNearBall(game,d);
+ }))return null;
+ return P('shoot',actor,0,{key:'jump'});
+}
 function swingBeforeBlockedDrive({g,a:actor,mind,hoop,pool,tactic},decision){
  const previous=g.assistPlay,screen=g.teamScreen;
  if(g.team.format!=='5v5'||g.team.difficulty!=='legend'||g.teamExercise||g.inbound||!g.courtProgress?.front||
@@ -691,9 +726,7 @@ function Uc(g,carrier){
   if(defender.contact||pressure>A.reachRange)return null;
   const phase=defender.age*defender.ability.stealRate;
   if(phase<a.stealActiveStart||a.stealActiveEnd-phase<=release*defender.ability.stealRate)return null;
-  const hand=g.poses?.[defender.id]?.hands?.[defender.reachHand];
-  const reach=T.radius+T.handRadius+T.contactTolerance+a.bodyRadius;
-  if(!hand||Math.hypot(hand.x-ball.x,hand.y-ball.y,hand.z-ball.z)>reach)return null;
+  if(!reachHandNearBall(g,defender))return null;
  }else if(!carrier.teamBrain.difficulty||pressure>A.reachRange+a.bodyRadius||!closesToReach(carrier,defender,release))return null;
  // Use carrier normal He while the catch grace is nearly gone, only if its
  // lane and the teammate's room to take the next action are clear.
