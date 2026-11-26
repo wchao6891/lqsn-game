@@ -966,18 +966,33 @@ function swingBeforeBlockedDrive({g,a:actor,mind,hoop,pool,tactic},decision){
  return best&&P('kick-out',null,0,{key:'pass',...best});
 }
 
-var cs=new WeakSet;function Ic(e,t,n,i,o){let r=t.velocity;if(ie(t,{x:i.x+r.x*o,z:i.z+r.z*o}))return!0;let{kind:s,target:l,pace:c}=n.intent;if(e.team.difficulty!=="legend"||s!=="drive"||!l)return!1;let f=z(t,l),m=$(t,l),p=t.ability.moveSpeed*Math.min(1,c)*Math.min(1,f/(a.bodyRadius*2)),u=n.react*pt,x=-u*Math.expm1(-o/u),h=o-x;return ie(t,{x:i.x+r.x*x+m.x*p*h,z:i.z+r.z*x+m.z*p*h})}function settleOnThree({g: game,a: actor,mind: brain,ball: heldBall,hoop: rim,tactic: playTactic}){
+var cs=new WeakSet;function Ic(e,t,n,i,o){let r=t.velocity;if(ie(t,{x:i.x+r.x*o,z:i.z+r.z*o}))return!0;let{kind:s,target:l,pace:c}=n.intent;if(e.team.difficulty!=="legend"||s!=="drive"||!l)return!1;let f=z(t,l),m=$(t,l),p=t.ability.moveSpeed*Math.min(1,c)*Math.min(1,f/(a.bodyRadius*2)),u=n.react*pt,x=-u*Math.expm1(-o/u),h=o-x;return ie(t,{x:i.x+r.x*x+m.x*p*h,z:i.z+r.z*x+m.z*p*h})}function settleOnThree({g: game,a: actor,mind: brain,ball: heldBall,hoop: rim,tactic: playTactic,pool}){
+ const receiving=actor.state==='receive';
+ const justPlanted=actor.state==='idle'&&actor.previousState==='receive'&&game.time-actor.caughtAt<=a.catchTime+brain.react;
+ if(!receiving&&!justPlanted)return null;
  if(game.team.format!=='5v5'||game.team.difficulty!=='legend'||game.teamExercise||game.inbound||game.freeThrows||
-  !game.courtProgress?.front||brain.role!=='shooter'||actor.state!=='receive'||!heldBall.liveReception||heldBall.movingCatch||
+  !game.courtProgress?.front||brain.role!=='shooter'||!heldBall.liveReception||heldBall.movingCatch||
   actor.air||actor.offBalance||actor.passMotion||actor.shot||actor.ultimate||actor.sprinting||actor.cooldown>0||
   playTactic&&playTactic!=='balanced'||st(game,actor.team)||game.offBallScreen?.owner===actor.id||
   game.teamScreen?.owner===actor.id&&game.teamScreen.request||
   actor.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(actor.ability.staminaEfficiency??1))return null;
- const feet=actor.courtFooting??actor,wait=actor.duration-actor.age;
- const delay=wait+brain.react,deadline=Math.min(game.shotClock,game.team.remaining),release=delay+Re().ideal;
- if(wait<=0||deadline<=Math.max(A.shotUrgency,release)||z(actor,rim)>a.normalRange||ie(actor,feet)||
-  !Ic(game,actor,brain,feet,delay)||z(actor,Z(game,actor))<a.contestRange||
+ const feet=actor.courtFooting??actor,wait=receiving?actor.duration-actor.age:0,range=z(actor,rim);
+ const delay=wait+brain.react,deadline=Math.min(game.shotClock,game.team.remaining),shotRelease=Re().ideal;
+ const release=delay+shotRelease,space=z(actor,Z(game,actor));
+ if(receiving&&wait<=0||deadline<=Math.max(A.shotUrgency,release)||range>a.normalRange||ie(actor,feet)||
+  !Ic(game,actor,brain,feet,delay)||space<a.contestRange||
   tt(game,actor,rim,release))return null;
+ if(justPlanted){
+  const toward=$(actor,rim);
+  if(!squareForPullUp(actor,toward,shotRelease)||pullUpThreat(game,actor,toward,shotRelease,true))return null;
+  // A static gap can close before the carrier gets to the layup gather.
+  const finish=Ge(rim,actor,(a.layupRange-a.bodyRadius)/range);
+  const speed=Math.max(actor.ability.moveSpeed,Math.hypot(actor.velocity.x,actor.velocity.z));
+  if(ke(game,actor,rim)&&ht(game,actor,finish,speed,z(actor,finish)/speed)>=a.bodyRadius*2||
+   Vn(game,actor,pool,rim,space,deadline,false))return null;
+  return P('shoot',actor,0,{key:'jump'});
+ }
+ // Preserve the shot at the catch point when the default drive would step over the arc.
  return P('receive',actor,0);
 }
 function Oc(g,actor,mind){
