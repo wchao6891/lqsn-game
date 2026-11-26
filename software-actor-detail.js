@@ -1,5 +1,5 @@
 import * as T from './vendor/three.module.js';
-import {l as fetchPackedAsset} from './chunk-PC044386AD6A65.js';
+import {l as fetchPackedAsset} from './chunk-PCBB9016A44B83.js';
 
 export const SOFTWARE_ACTOR_DETAIL_FILE='game-assets/software-actor-detail.v1.json';
 // The 564-to-617 comparison used a 0.7-pixel projected error budget.
