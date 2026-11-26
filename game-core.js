@@ -163,13 +163,26 @@ function shotBeforeReset({g,a:player,hoop,tactic},outlet,range,space,deadline){
   player.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(player.ability.staminaEfficiency??1)||
   deadline<=A.shotUrgency||Qe-g.laneSeconds[player.id]<=release)return null;
  const toward=$(player,hoop);
- if(!squareForPullUp(player,toward,release))return null;
  // A lead to player cutter can still turn into player close shot after the catch.
  const route=receiver.teamBrain.intent;
  if(route.kind==='cut'||route.kind==='roll')return null;
  const flight=De(g,player,receiver,style);
- if(!flight||z(je(flight),hoop)<=a.normalRange+a.bodyRadius||
-  pullUpThreat(g,player,toward,release,true))return null;
+ if(!flight)return null;
+ const landing=je(flight),landingRange=z(landing,hoop);
+ if(landingRange>a.normalRange+a.bodyRadius){
+  if(!squareForPullUp(player,toward,release))return null;
+ }else{
+  if(g.team.difficulty!=='legend'||landingRange<=a.layupRange||ie(player,player.courtFooting??player)||
+   player.face.x*toward.x+player.face.z*toward.z<a.defensiveCone||ke(g,player,hoop))return null;
+  // This jumper plants. A sideways dribble can still leave room to rise,
+  // while the pass brings its receiver within player closing defender's reach.
+  const catchAt=Ce(Ae[style])+flight.duration;
+  const releaseAt=catchAt+Math.max(a.catchTime,receiver.teamBrain.react)+release;
+  const opponents=V(g).filter(d=>d.team!==player.team&&!d.offBalance);
+  if(opponents.every(d=>defenderRoomAtPoint(d,landing,catchAt,releaseAt)>=A.reachRange)||
+   opponents.some(d=>activeStealAtBall(g,player,d,release)))return null;
+ }
+ if(pullUpThreat(g,player,toward,release,true))return null;
  return P('shoot',player,0,{key:'jump'});
 }
 function ec(e,t,n,i,o){let{g:r,a:s,mind:l,hoop:c,pool:f,tactic:m}=e,p=r.teamScreen,u=r.teamDefense;if(r.team.format!=="5v5"||r.teamExercise||r.inbound||m&&m!=="balanced"||l.intent.kind!=="drive-rim"||!r.ball.liveReception||r.ball.movingCatch||n<=a.layupRange||n>a.layupRange+a.bodyRadius*2||i<A.reachRange||s.state!=="idle"||s.air||s.shot||s.passMotion||s.offBalance||s.ultimate||s.cooldown>0||s.sprinting||p?.owner===s.id&&(p.request||["pop","roll"].includes(p.phase))||r.offBallScreen?.owner===s.id||s.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(s.ability.staminaEfficiency??1)||u?.owner===s.id&&u.helper&&Math.max(z(s,u.primary),z(s,u.helper))<a.contestRange)return null;let x=Re().ideal,h=$(s,c);if(x>=Math.min(o,Qe-r.laneSeconds[s.id]))return null;let{x:y,z:b}=s.velocity;if((y*h.x+b*h.z)*x<a.bodyRadius||Math.abs(y*h.z-b*h.x)*x>a.bodyRadius)return null;if(pullUpThreat(r,s,h,x))return null;let d=[t,...f.filter(k=>k!==t)],R=Vn(r,s,d,c,i,o,!0);return R?P("kick-out",null,0,{key:"pass",...R}):P("shoot",s,0,{key:"jump"})}function tc({g:e,a:t,mind:n,hoop:i,anchor:o,pool:r,tactic:s},l,c){let f=Re().ideal,m=t.ability.staminaEfficiency??1,p=(a.staminaCosts.jump+a.staminaCosts.shoot)/m;if(n.intent.kind==="fake-drive"&&e.time<n.commitUntil){let{target:x}=n.intent;if(z(t,x)<=a.bodyRadius*2&&l>f&&t.stamina>=p&&c<=a.normalRange&&!tt(e,t,i,f))return P("fake-pull-up",o,0,{key:"jump"});if(z(t,x)>a.bodyRadius*2&&ke(e,t,x))return{...n.intent,action:null}}if(t.state==="fake"&&e.ball.fakeGuard!==void 0){if(t.age<Math.max(a.fakePlant,n.react))return Fe;if(l>f&&c<=a.normalRange&&t.stamina>=p&&!tt(e,t,i,f))return P("fake-pull-up",o,0,{key:"jump"});let x=e.players[e.ball.fakeGuard],h=$(t,i);if(l>A.shotUrgency&&(x.handsUp||x.air||x.offBalance)){let y=null,b=-1/0;for(let v of[-1,1]){let d=a.contestRange,R=s==="perimeter"?0:d,k={x:t.x+h.x*R+v*h.z*d,z:t.z+h.z*R-v*h.x*d},M=Math.max(c,g.threePointRadius+a.bodyRadius/2),S=N(e,s==="perimeter"?Ge(i,k,M/z(i,k)):k),B=z(S,Z(e,{...S,team:t.team}));B<=b||B<a.bodyRadius*3||z(t,S)<a.bodyRadius*3||s==="perimeter"&&ie(t,S)||e.courtProgress?.front&&!se(t,S)||!ke(e,t,S)||(y=S,b=B)}if(y)return n.commitUntil=e.time+z(t,y)/t.ability.moveSpeed+a.crossoverDuration+n.react,P("fake-drive",y,1,{key:"crossover"})}for(let y of[...r].sort((b,v)=>$e(e,t,v)-$e(e,t,b))){if(s==="perimeter"&&ie(y)||s==="inside"&&!ie(y))continue;let b=Je(e,t,y,l,["direct","lob"],{closing:!0});if(b)return P("fake-pass",null,0,{key:"pass",...b})}return Fe}if(!e.ball.liveReception||e.ball.fakeGuard!==void 0||e.teamExercise||e.teamScreen?.request||!["shooter","driver"].includes(n.role)||s==="inside"||l<=A.shotUrgency||t.state!=="idle"&&t.state!=="receive"||t.air||t.offBalance||t.stamina<p+a.staminaCosts.fake/m||c<=a.layupRange+a.contestRange||c>a.normalRange||e.time-t.heldAt<n.react||e.time-t.heldAt>a.catchTime+n.react*3)return null;let u=tt(e,t,i,f,!0);return u?P("catch-fake",o,0,{key:"fake",guard:u.id}):null}function gi(e,t,n,i){let o=n.duration/n.sourceRate;if(t.dreamBlock||i<=o+A.shotUrgency)return!1;if(e.team.format!=="5v5"||!rt(t))return!0;let{difficulty:r,react:s}=t.teamBrain,l=Kn(0,1,r,s);return Qe-e.laneSeconds[t.id]>o+l+Re().ideal}function nc(e){let{g:t,a:n,mind:i,hoop:o,pool:r,tactic:s}=e,l=xe[n.character],c=Math.min(t.shotClock,t.team.remaining??1/0),f=A.reachRange+a.bodyRadius;if(n.energy<l.cost||!t.poses||t.team.format!=="5v5"||t.teamExercise||s&&s!=="balanced"||!t.courtProgress?.front||!se(n,n.courtFooting??n,xn)||n.sprinting||n.passMotion||n.shot||t.time-n.heldAt<a.catchTime||Math.hypot(n.velocity.x,n.velocity.z)*i.react>a.bodyRadius||z(n,o)<=a.normalRange||st(t,n.team)||t.offBallScreen?.owner===n.id||t.teamScreen?.owner===n.id&&t.teamScreen.phase!=="expired"||!gi(t,n,l,c)||_e(t,n)||ke(t,n,o))return null;let m=z(n,Z(t,n));if(m<f)return null;let p=Yn(t,n,o);if(p&&ht(t,n,p,n.ability.moveSpeed,i.react+A.leadTime)>=a.contestRange||Vn(t,n,r,o,m,c,!1))return null;let u=ni(l,n,o);if(!u)return null;let x={x:n.x,z:n.z,groundY:n.groundY},h=Me(t),y=V(t).filter(b=>b.team!==n.team);for(let b of l.samples){let v=Math.min(u.releaseAge,b.t/l.sourceRate),{ball:d}=u.advance(x,v);if(!se(n,x)||We(x,a.bodyRadius,h)||!se(n,d,xn)||We(d,T.radius,h))return null;for(let R of y){let k=R.air?.velocity??R.velocity;if(Math.hypot(d.x-R.x-k.x*v,d.z-R.z-k.z*v)<f)return null}if(v===u.releaseAge)break}return P("skill",n,0,{key:"ultimate"})}function ic(e,t,n,i,o,r){let s=xe[t.character];if(s.kind!=="dream"||!e.poses||o<a.contestRange||i.state!=="idle"||i.air||i.offBalance||i.cooldown>0||rt(t)||!gi(e,t,s,r)||_e(e,t))return null;let l=i.x-t.x,c=i.z-t.z,f=$(t,n),m=i.velocity.x-t.velocity.x,p=i.velocity.z-t.velocity.z,u=l*m+c*p;if(u>=0||l*f.x+c*f.z>=-o*a.defensiveCone)return null;let x=Math.min(s.release/s.sourceRate,-u/(m*m+p*p));return Math.hypot(l+m*x,c+p*x)>=A.reachRange||ke(e,t,n)?null:P("skill",t,0,{key:"ultimate"})}function oc(e,t,n,i,o){let r={x:t.x,z:t.z},s=ni(o,r,i);if(!s||(s.advance(r,s.releaseAge),s.cancel(),s.advance(r,s.duration),Oe(r,Me(e))))return 1/0;let l=z(r,i)-a.normalRange,c=l>0?(l+a.bodyRadius)/(t.ability.moveSpeed*ds):0;return s.duration+a.groundRecovery+n.react+c+Re().ideal}function Ss(e,t,n,i,o){let r=rt(t)?Qe-e.laneSeconds[t.id]:1/0;return i<Math.min(o,r)&&!tt(e,t,n,i)}function _i({g:e,a:t,mind:n,hoop:i},o,r,s){if(e.team.format!=="5v5"||e.teamExercise||!e.poses||e.teamScreen?.request||s<=A.shotUrgency||o>a.normalRange||r<=a.contestRange||t.shot||t.passMotion||t.sprinting)return null;let l=xe[t.character];if(l.kind!=="normal"&&l.kind!=="stepback"||_e(e,t))return null;let c=l.kind==="stepback"?oc(e,t,n,i,l):l.release/l.sourceRate;return Ss(e,t,i,c,s)?P("skill",t,0,{key:"ultimate",fallback:"jump"}):null}function setShotTime(player,toward){
@@ -561,6 +574,12 @@ function reachHandNearBall(game,defender){
  const reach=T.radius+T.handRadius+T.contactTolerance+a.bodyRadius;
  return Boolean(hand&&Math.hypot(hand.x-ball.x,hand.y-ball.y,hand.z-ball.z)<=reach);
 }
+function activeStealAtBall(g,player,defender,release){
+ if(defender.state!=='steal'||defender.contact)return false;
+ const rate=defender.ability.stealRate,afterGrace=Math.max(0,player.protectedUntil-g.time);
+ return defender.age+release>=a.stealActiveStart/rate&&defender.age+afterGrace<=a.stealActiveEnd/rate&&afterGrace<release&&
+  reachHandNearBall(g,defender);
+}
 function jumpAsRunningCatchSettles(context,range,space,deadline,instruction){
  const {g:game,a:actor,hoop,tactic}=context;
  const ball=game.ball,screen=game.teamScreen;
@@ -581,11 +600,7 @@ function jumpAsRunningCatchSettles(context,range,space,deadline,instruction){
  if(ht(game,actor,target,speed,z(actor,target)/speed)>=a.bodyRadius*2)return null;
  if(V(game).some(d=>{
   if(d.team===actor.team||d.offBalance)return false;
-  if(defenderRoomAtPoint(d,actor,0,release)<A.reachRange)return true;
-  if(d.state!=='steal'||d.contact)return false;
-  const rate=d.ability.stealRate,afterGrace=Math.max(0,actor.protectedUntil-game.time);
-  return d.age+release>=a.stealActiveStart/rate&&d.age+afterGrace<=a.stealActiveEnd/rate&&afterGrace<release&&
-   reachHandNearBall(game,d);
+  return defenderRoomAtPoint(d,actor,0,release)<A.reachRange||activeStealAtBall(game,actor,d,release);
  }))return null;
  return P('shoot',actor,0,{key:'jump'});
 }
