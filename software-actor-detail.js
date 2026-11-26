@@ -6,8 +6,8 @@ export const SOFTWARE_ACTOR_DETAIL_FILE='game-assets/software-actor-detail.v1.js
 const projectedErrorBudget=.7;
 let library;
 
-function loadLibrary(){
- library??=fetchPackedAsset('./'+SOFTWARE_ACTOR_DETAIL_FILE,'球员远景模型读取失败')
+function loadLibrary(options){
+ library??=fetchPackedAsset('./'+SOFTWARE_ACTOR_DETAIL_FILE,'球员远景模型读取失败',options)
   .then(bytes=>JSON.parse(new TextDecoder().decode(bytes)))
   .catch(error=>{library=null;throw error;});
  return library;
@@ -72,6 +72,6 @@ export function createSoftwareActorDetail(actors,keys,details){
  };
 }
 
-export async function loadSoftwareActorDetail(actors,keys){
- return createSoftwareActorDetail(actors,keys,await loadLibrary());
+export async function loadSoftwareActorDetail(actors,keys,options){
+ return createSoftwareActorDetail(actors,keys,await loadLibrary(options));
 }
