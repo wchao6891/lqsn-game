@@ -110,7 +110,7 @@ h1{font-size:38px;font-style:italic;letter-spacing:.03em;margin:8px 0}h2{font-si
 #shooting-setup .mode-options{margin:6px 0}
 #lab-menu-hint{display:block;margin-top:8px;color:var(--muted)}
 #controls[data-stationary=true] .movement{display:none}
-#team-control,#tactic-hint,#defense-hint{grid-column:1/-1}#tactic-hint,#defense-hint{font-size:10px;line-height:1.6}#tactic-hint{color:var(--muted)}#defense-hint{color:#e8e8e4}#controls #defense-label{color:var(--accent);font-size:10px}
+#team-control,#team-action-control,#tactic-hint,#defense-hint{grid-column:1/-1}#tactic-hint,#defense-hint{font-size:10px;line-height:1.6}#tactic-hint{color:var(--muted)}#defense-hint{color:#e8e8e4}#controls #defense-label{color:var(--accent);font-size:10px}
 #challenge-result{margin-bottom:12px;text-align:left}
 #challenge-result p,#challenge-result h3{margin:.45em 0}
 #challenge-result ol{list-style:none;margin:0;padding:0;max-height:24vh;overflow:auto}
