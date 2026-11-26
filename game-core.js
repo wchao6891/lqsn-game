@@ -880,7 +880,23 @@ const approach=(v*c.x+d*c.z)/speed,lateral=Math.abs(v*c.z-d*c.x)/speed;
     }
    }
    const next={x:n.x+vx*read,z:n.z+vz*read,hoop:s};
-   if(we(t,next))return P('contain',t,0);
+   if(we(t,next)){
+    const prior=t.teamBrain.intent,target=prior.target;
+    if(contact===0&&e.team.difficulty==='legend'&&!e.inbound&&e.courtProgress?.front&&C(n)&&
+     e.teamDefense?.primary===t&&t.guard&&t.moving&&!t.sprinting&&prior.kind==='contain'&&prior.pace>0&&prior.pace<=1&&target){
+     const step=z(t,target),stride=Math.hypot(t.velocity.x,t.velocity.z)*horizon;
+     const sameSlide=t.velocity.x*vx+t.velocity.z*vz>0&&(target.x-t.x)*vx+(target.z-t.z)*vz>0;
+     if(stride>=a.bodyRadius/2&&step>T.contactTolerance&&step<=stride+T.contactTolerance&&sameSlide){
+      // When planting barely covers the cone, finish the reachable slide already underway.
+      const toRim=$(next,s),dx=t.x-next.x,dz=t.z-next.z;
+      const depth=dx*toRim.x+dz*toRim.z,side=Math.abs(dx*toRim.z-dz*toRim.x);
+      const room=depth*Math.sqrt(1-a.defensiveCone**2)-side*a.defensiveCone;
+      if(room<=T.contactTolerance&&we(target,next)&&z(target,next)<=a.contestRange&&
+       (step<=a.bodyRadius||K(e,t,target,a.bodyRadius*2)))return {...prior,action:null};
+     }
+    }
+    return P('contain',t,0);
+   }
   }
 }let x=a.bodyRadius*2.4,h=$(m,s),y=Math.min(x,z(m,s)),b=p?N(e,{x:m.x+h.x*y,z:m.z+h.z*y}):Fn(e,n,m);return z(t,b)>a.bodyRadius&&!K(e,t,b,a.bodyRadius*2)?null:o?P("contain",b,Kt):{...P("contain",b,p?t.teamBrain.difficulty.containPace:1.3),pressureOwner:n.id,sprintGap:a.bodyRadius*2,plantRadius:T.contactTolerance}}function canReadPressureReach(g,defender,owner){
  return defender.state==='idle'&&!defender.air&&!defender.offBalance&&!defender.sprinting&&owner.state==='idle'&&!owner.air&&!owner.ultimate&&

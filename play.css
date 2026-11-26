@@ -409,6 +409,85 @@ body:not([data-touch-input]) .resource-fill-clip{background:var(--resource-track
  body:not([data-touch-input]) #player-resources .resource-track{height:12px}
 }
 
+@media(max-height:420px) and (orientation:landscape){
+ body:not([data-touch-input]){--short-edge:8px;--short-tools:84px;--short-side:clamp(150px,30vw,180px)}
+ body:not([data-touch-input]) #hud,
+ body:not([data-touch-input]) #hud:has(#score-home-name:not([hidden])){
+  top:var(--short-edge);left:var(--short-edge);right:var(--short-edge);display:grid;
+  grid-template-columns:minmax(32px,1fr) minmax(152px,min(54vw,332px)) minmax(116px,1fr);gap:5px 8px;
+ }
+ body:not([data-touch-input]) #hud>.player-hud{
+  grid-column:1;grid-row:1;align-self:center;min-width:0;max-width:100%;gap:3px;padding:3px 4px;
+ }
+ body:not([data-touch-input]) #hud>#opponent-hud{
+  grid-column:3;justify-self:start;max-width:calc(100% - var(--short-tools));
+ }
+ body:not([data-touch-input]) #hud>.player-hud>img{width:19px;height:23px;flex:none}
+ body:not([data-touch-input]) #hud .player-hud .ultimate-meter{width:17px;height:17px;flex:none}
+ body:not([data-touch-input]) #hud .player-hud .ultimate-meter img{inset:3px;width:11px;height:11px}
+ body:not([data-touch-input]) .scoreboard,
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])){
+  grid-column:2;grid-row:1;justify-self:stretch;inline-size:100%;min-width:0;padding:3px 6px;gap:5px;
+ }
+ body:not([data-touch-input]) .scoreboard .score-side{flex-direction:row;gap:4px}
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) .score-side>small{font-size:11px;line-height:1.1}
+ body:not([data-touch-input]) .scoreboard .score-side>strong,
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) .score-side>strong{font-size:23px;min-width:1.3em}
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden]))>span:nth-child(2){min-inline-size:3.4rem;padding-inline:4px;gap:0}
+ body:not([data-touch-input]) .scoreboard #clock,
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) #clock{font-size:16px;line-height:1.05}
+ body:not([data-touch-input]) .scoreboard :is(#mode-title,#team-shot-clock){font-size:9px;line-height:1.1}
+ body:not([data-touch-input]) #tools{top:var(--short-edge);right:var(--short-edge);gap:3px}
+ body:not([data-touch-input]) #tools button{width:25px;height:26px;font-size:14px}
+
+ body:not([data-touch-input]) #match-notices{position:relative;grid-template-columns:minmax(0,1fr) var(--short-side);gap:3px 6px}
+ body:not([data-touch-input]) #match-notices #controls{
+  position:absolute;top:0;right:0;grid-area:auto;width:var(--short-side);
+  grid-template-columns:repeat(6,minmax(0,1fr));padding:6px;gap:2px 4px;
+  color:#fff5e0;background:#171b25f7;border:1px solid #edb34e70;
+ }
+ body:not([data-touch-input]) #controls>span{grid-column:span 3;min-width:0;gap:4px;color:inherit}
+ body:not([data-touch-input]) #controls>#team-control{grid-column:span 4}
+ body:not([data-touch-input]) #controls>#team-control>b{text-wrap:balance}
+ body:not([data-touch-input]) #controls>#team-action-control{grid-column:span 2}
+ body:not([data-touch-input]) #controls :is(span,b,kbd){font-size:10px;line-height:1.15}
+ body:not([data-touch-input]) #controls kbd{padding:1px 3px;border-bottom-width:1px}
+ body:not([data-touch-input]) #controls :is(#tactic-hint,#defense-hint,#hint){color:#e3cfac;font-size:10px;line-height:1.25}
+ body:not([data-touch-input]) #hint:not(:empty){display:block}
+ body:not([data-touch-input]) #hint:empty{display:none}
+ body:not([data-touch-input]) #match-notices :is(#match-announcement,#toast,#record-status,#defense-action){grid-column:1;max-width:100%}
+ body:not([data-touch-input]) #match-announcement{grid-row:1;font-size:17px;padding:4px 8px 5px}
+ body:not([data-touch-input]) #match-announcement-detail:not(:empty){font-size:11px;margin-top:2px}
+ body:not([data-touch-input]) #toast{grid-row:2;font-size:15px;font-style:normal;line-height:1.2}
+ body:not([data-touch-input]) #match-notices:not(:has(#controls:not([hidden]))) #toast{grid-column:1}
+ body:not([data-touch-input]) #record-status{grid-row:3;font-size:10px}
+ body:not([data-touch-input]) #defense-action{grid-row:4;font-size:11px;padding:3px 6px}
+
+ body:not([data-touch-input]) #player-resources{
+  left:var(--short-edge);bottom:var(--short-edge);transform:none;width:min(228px,calc(100vw - var(--short-side) - 3 * var(--short-edge)));
+  padding:4px 7px;gap:3px 6px;
+ }
+ body:not([data-touch-input]) #player-resources:has(#my-ultimate[hidden]){width:min(175px,calc(100vw - var(--short-side) - 3 * var(--short-edge)))}
+ body:not([data-touch-input]) #player-resources .resource-row{font-size:11px;line-height:13px;gap:4px}
+ body:not([data-touch-input]) #player-resources .resource-row>b{font-size:11px}
+ body:not([data-touch-input]) #player-resources .resource-track{height:8px}
+ body:not([data-touch-input]) #ultimate-indicator{grid-template-columns:22px 16px}
+ body:not([data-touch-input]) #my-ultimate-icon{width:22px;height:22px}
+ body:not([data-touch-input]) :is(#drill-status,#practice-tools){bottom:55px;padding:6px 8px}
+ body:not([data-touch-input]) #score-flash{
+  top:28%;bottom:auto;left:var(--short-edge);width:min(34vw,214px);
+ }
+ body:not([data-touch-input]) #pause-panel{padding:var(--short-edge)}
+ body:not([data-touch-input]) #pause-panel>.dialog{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:min(420px,100%);
+  max-height:calc(100dvh - 2 * var(--short-edge));overflow:auto;gap:7px;padding:11px 13px;
+ }
+ body:not([data-touch-input]) #pause-panel>.dialog>:not(button){grid-column:1/-1}
+ body:not([data-touch-input]) #pause-panel>.dialog h2{margin:0;font-size:20px}
+ body:not([data-touch-input]) #pause-panel>.dialog>button{min-height:32px;padding:5px 6px;font-size:13px;line-height:1.2}
+ body:not([data-touch-input]) #shooting-pause{margin-top:0}
+}
+
 #match-highlights{text-align:left}
 #match-highlights h3{font-size:14px;margin:0 0 5px}
 .highlight-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
