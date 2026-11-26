@@ -444,7 +444,68 @@ if(l.kind==="shooting-support")return n.resonanceShooting||t.mustClear||t.team.r
   tt(game,actor,rim,release))return null;
  return P('receive',actor,0);
 }
-function Oc(e,t,n){let i=e.ball,o=n.next-e.time,r=e.time-t.heldAt;if(e.team.format!=="5v5"||e.teamExercise||e.inbound||e.freeThrows||e.mustClear||!e.courtProgress?.front||i.state!=="held"||i.owner!==t.id||!i.liveReception||i.movingCatch||cs.has(i)||!(r>=a.catchTime&&r<a.catchTime+n.react&&o>0)||t.state!=="idle"||t.air||t.offBalance||t.passMotion||t.shot||t.ultimate||t.cooldown>0||e.teamScreen?.request&&e.teamScreen.owner===t.id||e.offBallScreen?.owner===t.id||st(e,t.team)||t.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(t.ability.staminaEfficiency??1))return null;let s=nt(e,t.team);if(s&&s!=="balanced")return null;let l=Y(t),c=z(t,l),f=t.courtFooting??t,m=t.velocity;if(c<=a.layupRange||c>a.normalRange||ie(t,f)||!Ic(e,t,n,f,o))return null;let p=Re().ideal,u=Math.min(e.shotClock,e.team.remaining),x=$(t,l);if(u<=A.shotUrgency||Qe-e.laneSeconds[t.id]<=p+o||Math.abs(m.x*x.z-m.z*x.x)*p>a.bodyRadius||(m.x*x.x+m.z*x.z)*p<-a.bodyRadius)return null;let h=Z(e,t);if(!h)return null;let y=z(t,h);if(y<a.contestRange)return null;let b=h.x-t.x,v=h.z-t.z,d=h.velocity.x-m.x,R=h.velocity.z-m.z,k=d*d+R*R,M=k?Math.max(0,Math.min(p,-(b*d+v*R)/k)):0,S=Math.hypot(b+d*M,v+R*M),B=e.team.difficulty==="legend"&&n.role==="shooter"&&y>=a.contestRange*2;return S<A.reachRange||S>=a.contestRange&&!B||(cs.add(i),tt(e,t,l,p))||V(e).some(F=>{if(F===t||F.team!==t.team)return!1;let O=Je(e,t,F,u,["direct","lob"],{closing:!0,outside:!0});if(!O)return!1;let E=O.catchPoint??F,U=Z(e,{...E,team:F.team});return z(E,U)>=y+a.bodyRadius})?null:P("shoot",t,0,{key:"jump"})}function closesToReach(carrier,defender,seconds,velocity=carrier.velocity){
+function Oc(g,actor,mind){
+ const ball=g.ball,delay=mind.next-g.time,held=g.time-actor.heldAt;
+ if(g.team.format!=='5v5'||g.teamExercise||g.inbound||g.freeThrows||g.mustClear||!g.courtProgress?.front||
+  ball.state!=='held'||ball.owner!==actor.id||!ball.liveReception||ball.movingCatch||cs.has(ball)||delay<=0||
+  actor.state!=='idle'||actor.air||actor.offBalance||actor.passMotion||actor.shot||actor.ultimate||actor.cooldown>0||
+  g.teamScreen?.request&&g.teamScreen.owner===actor.id||g.offBallScreen?.owner===actor.id||st(g,actor.team)||
+  actor.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(actor.ability.staminaEfficiency??1))return null;
+ const justCaught=held>=a.catchTime&&held<a.catchTime+mind.react;
+ if(!justCaught&&(held<a.catchTime+mind.react||g.team.difficulty!=='legend'||mind.intent.kind!=='drive'||
+  !actor.moving||actor.sprinting||g.teamScreen?.owner===actor.id&&g.teamScreen.phase!=='expired'))return null;
+ const tactic=nt(g,actor.team);
+ if(tactic&&tactic!=='balanced')return null;
+ const hoop=Y(actor),range=z(actor,hoop),feet=actor.courtFooting??actor,v=actor.velocity;
+ if(range<=a.layupRange||range>a.normalRange||ie(actor,feet)||
+  !Ic(g,actor,mind,feet,delay))return null;
+ const release=Re().ideal,deadline=Math.min(g.shotClock,g.team.remaining);
+ const toward=$(actor,hoop);
+ if(deadline<=A.shotUrgency||Qe-g.laneSeconds[actor.id]<=release+delay||
+  Math.abs(v.x*toward.z-v.z*toward.x)*release>a.bodyRadius||
+  (v.x*toward.x+v.z*toward.z)*release<-a.bodyRadius)return null;
+ const nearest=Z(g,actor);
+ if(!nearest)return null;
+ const space=z(actor,nearest);
+ if(space<a.contestRange)return null;
+ if(justCaught){
+  const x=nearest.x-actor.x,z=nearest.z-actor.z,vx=nearest.velocity.x-v.x,vz=nearest.velocity.z-v.z;
+  const speedSq=vx*vx+vz*vz,at=speedSq?Math.max(0,Math.min(release,-(x*vx+z*vz)/speedSq)):0;
+  const room=Math.hypot(x+vx*at,z+vz*at);
+  const openShooter=g.team.difficulty==='legend'&&mind.role==='shooter'&&space>=a.contestRange*2;
+  if(room<A.reachRange||(room>=a.contestRange&&!openShooter))return null;
+  cs.add(ball);
+ }else{
+  // A short sidestep can be open even when it leads into actor crowded lane.
+  const route=mind.intent.target;
+  const routeToRim=route&&ke(g,actor,route)&&ke(g,{...route,team:actor.team},hoop);
+  if(ke(g,actor,hoop)||routeToRim||
+   pullUpThreat(g,actor,toward,release,true))return null;
+ }
+ if(tt(g,actor,hoop,release))return null;
+ // Keep the pass option when the landing gives the teammate actor clearer look.
+ // Use the same body-radius space advantage as the normal kick-out read.
+ if(V(g).some(receiver=>{
+  if(receiver===actor||receiver.team!==actor.team)return false;
+  if(!justCaught&&Je(g,actor,receiver,deadline,['direct','bounce','lob'],{closing:true,
+   stopAt:receiver.teamBrain.intent.target,
+   acceptLanding:(landing,arrival)=>{
+    if(z(landing,hoop)>a.layupRange)return false;
+    const ready=arrival+Math.max(a.catchTime,receiver.teamBrain.react);
+    return V(g).every(p=>p.team===receiver.team||
+     z(landing,{x:p.x+p.velocity.x*ready,z:p.z+p.velocity.z*ready})>=a.contestRange);
+   }}))return true;
+  const delivery=Je(g,actor,receiver,deadline,['direct','lob'],{closing:true,outside:true});
+  if(!delivery)return false;
+  const landing=delivery.catchPoint??receiver;
+  const marker=Z(g,{...landing,team:receiver.team});
+  return z(landing,marker)>=space+a.bodyRadius;
+ }))return null;
+ cs.add(ball);
+ return P('shoot',actor,0,{key:'jump'});
+}
+
+function closesToReach(carrier,defender,seconds,velocity=carrier.velocity){
  if(defender.state!=='idle'||!defender.moving||defender.air||defender.offBalance||defender.ultimate)return false;
  const toCarrier=$(defender,carrier);
  if(defender.face.x*toCarrier.x+defender.face.z*toCarrier.z<a.defensiveCone)return false;
