@@ -1,4 +1,4 @@
-const APP_CACHE='lqsn-app-60d7c17cd268';
+const APP_CACHE='lqsn-app-571d64ca2761';
 const ASSET_CACHE='lqsn-assets-7b542bf4e7bb';
 const KEEP=new Set([APP_CACHE,ASSET_CACHE]);
 const SCOPE=new URL('./',self.location.href).pathname;

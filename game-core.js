@@ -383,16 +383,20 @@ function ec(e,t,n,i,o){let{g:r,a:s,mind:l,hoop:c,pool:f,tactic:m}=e,p=r.teamScre
  const turn=Math.acos(Math.max(-1,Math.min(1,player.face.x*toward.x+player.face.z*toward.z)))/a.turnSpeed;
  return Math.max(turn,mt);
 }
-function quickShotBeforePaintSkill({g:game,a:player,mind,hoop},skill,deadline){
- if(game.team.format!=='5v5'||game.teamExercise||mind.intent.kind!=='drive-rim'||
-  game.teamScreen?.request||
+function quickShotBeforePaintSkill({g:game,a:player,mind,hoop,tactic},skill,deadline){
+ if(game.team.format!=='5v5'||game.teamExercise||game.teamScreen?.request||
   (skill.kind!=='dunk'&&skill.kind!=='layup'))return null;
- const quickRelease=setShotTime(player,$(player,hoop)),skillRelease=skill.release/skill.sourceRate;
+ const skillRelease=skill.release/skill.sourceRate;
  const laneTime=rt(player)?Qe-game.laneSeconds[player.id]:Infinity;
+ // The skill retains its planted court footing until release, so compare against the lane clock.
+ const skillTooLateForLane=skillRelease>=laneTime&&game.team.difficulty==='legend'&&
+  game.courtProgress?.front&&!C(player)&&(!tactic||tactic==='balanced')&&!st(game,player.team)&&game.offBallScreen?.owner!==player.id;
+ if(mind.intent.kind!=='drive-rim'&&!skillTooLateForLane)return null;
+ const quickRelease=setShotTime(player,$(player,hoop));
  const cost=a.staminaCosts.shoot/(player.ability.staminaEfficiency??1);
  if(player.stamina<cost||quickRelease>=Math.min(deadline,laneTime,skillRelease,Re().ideal))return null;
  // Take the quicker release when late help can reach the longer finish.
- if(!tt(game,player,hoop,skillRelease)||tt(game,player,hoop,quickRelease))return null;
+ if(!skillTooLateForLane&&(!tt(game,player,hoop,skillRelease)||tt(game,player,hoop,quickRelease)))return null;
  return P('quick-shot',player,0,{key:'shot-press'});
 }
 function clearLayupSkillPath(g,player,hoop,skill,range,clearance,release){
