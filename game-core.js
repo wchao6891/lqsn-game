@@ -521,7 +521,23 @@ let L=s.filter(ne=>["cut","roll"].includes(ne.teamBrain?.intent.kind)&&z(ne,o)+a
    const kickOut=Vn(t,n,s,o,p,h,true);
    if(kickOut)return P('kick-out',null,0,{key:'pass',...kickOut});
    return _i(e,f,p,h)??P('shoot',n,0,{key:'jump'});
-  }}if(q&&!u&&t.time-i.lastPass>i.react*4&&(!X||c==="perimeter"&&ie(n)||c==="inside"&&f>a.layupRange)){let L=rs(t,n,s,j=>{let le=z(j,o),de=z(j,Z(t,j));return keepRollFinish(j)||de<a.contestRange||de<p+a.bodyRadius?-1/0:c!=="inside"&&!ie(j)&&le<=a.normalRange?de+(j.teamBrain?.role==="shooter"?a.contestRange:a.bodyRadius):c!=="perimeter"&&le<=a.layupRange?de+a.contestRange:-1/0},t.team.format==="5v5");if(L){let j=ie(L.receiver),le=!j&&!X&&ec(e,L.receiver,f,p,h);return le||He(L.receiver,j?"hit-post":"kick-out",L.style)}}if(E&&q&&!u&&!ee&&(!c||c==="balanced")&&n.state==="idle"&&!n.shot&&!n.air&&!n.passMotion&&!n.offBalance&&!n.sprinting&&n.cooldown<=0&&p>=A.reachRange&&f>=a.layupRange&&f<=a.normalRange&&fn(t,n)&&!tt(t,n,o,Re().ideal))return P("shoot",n,0,{key:"jump"});let ue=E&&q&&!ee&&_i(e,f,p,h);if(ue&&(!c||c==="balanced"))return ue;if(E&&q&&!ee&&f<=H&&(u||X||f<=a.layupRange)&&(!U||!ie(n)||u||f<=a.layupRange)){if(ue)return ue;let D=xe[n.character],L=["dunk","layup","putback"].includes(D.kind),j=t.team.format==="5v5"&&!t.teamExercise&&(D.kind==="normal"||D.kind==="stepback"),le=L?fs:a.contestRange;return!j&&!u&&t.poses&&n.energy>=D.cost&&!["steal","screen","putback","recovery","shooting-support"].includes(D.kind)&&p>le&&(D.kind!=="dream"||gi(t,n,D,h))&&!_e(t,n)?(quickShotBeforePaintSkill(e,D,h)??P("skill",r,0,{key:"ultimate",fallback:"jump"})):!U&&f<=a.layupRange&&i.role==="driver"&&X?P("finish",o,1,{key:"layup"}):P("shoot",r,0,{key:"jump"})}if(q&&!u&&t.time-i.lastPass>i.react*4){let D=et(t,n,s,L=>{let j=L.teamBrain?.outlet;if(L.teamBrain?.intent.kind!=="outlet-ready"||j?.owner!==n.id||t.time>=j.until)return-1/0;let le=z(L,Z(t,L));return le>=a.contestRange&&(le>p+a.bodyRadius||f>H)?le:-1/0});if(D)return He(D,"feed-outlet")}if(!d&&q&&!u&&p<a.contestRange){let D=bs(t,n,o,c),L=D&&t.players[D.id],j=L?.teamBrain.intent;if(j?.kind==="handoff-approach"&&j.owner===n.id&&j.heldAt===n.heldAt){
+  }}if(q&&!u&&t.time-i.lastPass>i.react*4&&(!X||c==="perimeter"&&ie(n)||c==="inside"&&f>a.layupRange)){let L=rs(t,n,s,j=>{let le=z(j,o),de=z(j,Z(t,j));return keepRollFinish(j)||de<a.contestRange||de<p+a.bodyRadius?-1/0:c!=="inside"&&!ie(j)&&le<=a.normalRange?de+(j.teamBrain?.role==="shooter"?a.contestRange:a.bodyRadius):c!=="perimeter"&&le<=a.layupRange?de+a.contestRange:-1/0},t.team.format==="5v5");if(L){let j=ie(L.receiver),le=!j&&!X&&ec(e,L.receiver,f,p,h);return le||He(L.receiver,j?"hit-post":"kick-out",L.style)}}if(E&&q&&!u&&!ee&&(!c||c==="balanced")&&n.state==="idle"&&!n.shot&&!n.air&&!n.passMotion&&!n.offBalance&&!n.sprinting&&n.cooldown<=0&&p>=A.reachRange&&f>=a.layupRange&&f<=a.normalRange&&fn(t,n)&&!tt(t,n,o,Re().ideal))return P("shoot",n,0,{key:"jump"});let ue=E&&q&&!ee&&_i(e,f,p,h);if(ue&&(!c||c==="balanced"))return ue;if(E&&q&&!ee&&f<=H&&(u||X||f<=a.layupRange)&&(!U||!ie(n)||u||f<=a.layupRange)){if(ue)return ue;let D=xe[n.character],L=["dunk","layup","putback"].includes(D.kind),j=t.team.format==="5v5"&&!t.teamExercise&&(D.kind==="normal"||D.kind==="stepback"),le=L?fs:a.contestRange;return!j&&!u&&t.poses&&n.energy>=D.cost&&!["steal","screen","putback","recovery","shooting-support"].includes(D.kind)&&p>le&&(D.kind!=="dream"||gi(t,n,D,h))&&!_e(t,n)?(quickShotBeforePaintSkill(e,D,h)??P("skill",r,0,{key:"ultimate",fallback:"jump"})):!U&&f<=a.layupRange&&i.role==="driver"&&X?P("finish",o,1,{key:"layup"}):P("shoot",r,0,{key:"jump"})}if(q&&!u&&t.time-i.lastPass>i.react*4){
+ const compare=t.team.format==='5v5'&&t.team.difficulty==='legend'&&!t.teamExercise&&!d&&
+  !R&&(!c||c==='balanced')&&G?.owner!==n.id&&
+  !(I?.owner===n.id&&(I.request||I.phase==='roll'||I.phase==='pop'))&&
+  n.state==='idle'&&!n.air&&!n.offBalance&&!n.shot&&!n.passMotion&&E&&X&&f<=a.normalRange;
+ const release=Re().ideal,toward=$(n,o);
+ const clearAttack=compare&&(ke(t,n,o)||squareForPullUp(n,toward,release)&&!pullUpThreat(t,n,toward,release,true));
+ const D=et(t,n,s,L=>{
+  const j=L.teamBrain?.outlet;
+  if(L.teamBrain?.intent.kind!=='outlet-ready'||j?.owner!==n.id||t.time>=j.until)return -Infinity;
+  const room=z(L,Z(t,L));
+  if(room<a.contestRange||room<=p+a.bodyRadius&&f<=H)return -Infinity;
+  if(clearAttack&&!C(L)&&!jl(t,n,L,'direct',A.reachRange,f))return -Infinity;
+  return room;
+ });
+ if(D)return He(D,'feed-outlet');
+}if(!d&&q&&!u&&p<a.contestRange){let D=bs(t,n,o,c),L=D&&t.players[D.id],j=L?.teamBrain.intent;if(j?.kind==="handoff-approach"&&j.owner===n.id&&j.heldAt===n.heldAt){
    const wait=Math.min(i.next-t.time,D.arrival,(t.ball.handoffWaitUntil??Infinity)-t.time);
    const defenderArrivesFirst=t.team.format==='5v5'&&t.team.difficulty==='legend'&&t.ball.liveReception&&
     i.intent.kind!=='wait-handoff'&&t.time-n.heldAt<=a.catchTime+i.react*2&&
