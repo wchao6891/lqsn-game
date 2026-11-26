@@ -119,6 +119,43 @@ h1{font-size:38px;font-style:italic;letter-spacing:.03em;margin:8px 0}h2{font-si
 #team-shot-clock{font-variant-numeric:tabular-nums;white-space:nowrap}
 .scoreboard .score-side{min-width:0}
 .score-side>small{max-width:min(7rem,17vw);overflow:hidden;text-overflow:ellipsis}
+body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])){
+ display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+ inline-size:min(30rem,56vw);align-items:stretch;gap:clamp(6px,1.2vw,16px);
+ padding:8px clamp(8px,1.2vw,16px) 10px;
+ background:linear-gradient(180deg,#222b3a,#171b25f7);
+ border-color:#edb34e70;border-bottom-color:var(--accent);
+}
+body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) .score-side{
+ justify-content:space-between;gap:4px;
+}
+body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) .score-side>small{
+ max-width:100%;overflow:visible;text-overflow:clip;white-space:normal;overflow-wrap:anywhere;text-wrap:balance;
+ text-align:center;color:#fff5e0;font-size:clamp(12px,1.1vw,15px);font-weight:750;line-height:1.2;
+}
+body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) .score-side>strong{
+ font-size:clamp(29px,4.5vw,43px);font-variant-numeric:tabular-nums;
+}
+body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden]))>span:nth-child(2){
+ justify-content:center;gap:3px;min-inline-size:4.3rem;padding-inline:8px;border-inline:1px solid #fff5e02b;
+}
+body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) #clock{
+ font-size:clamp(17px,1.75vw,24px);
+}
+@media(max-width:850px){
+ body:not([data-touch-input]) #hud:has(#score-home-name:not([hidden])){
+  right:12px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+ }
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])){
+  /* Leave room for the three top controls, their gaps, and the viewport edge. */
+  inline-size:min(30rem,calc(100vw - 296px));
+ }
+}
+@media(max-width:620px){
+ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])){
+  grid-row:2;grid-column:1/-1;justify-self:center;inline-size:min(30rem,100%);
+ }
+}
 #finish-teams{overflow-wrap:anywhere}
 #menu.roster-menu .setup{width:min(1160px,96vw);padding:20px 25px;max-height:96dvh}
 .lineup-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px 12px}
