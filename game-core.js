@@ -722,6 +722,8 @@ if(G?.owner===n.id&&G.phase==="cut"&&!u&&p>=a.contestRange&&f>H&&z(t.players[G.c
  if(reach<=a.contestRange&&we(defender,owner)){
   const baseline=dc(g,defender,owner,assignment);
   if(baseline)return baseline;
+  const gather=followLayupGather(g,defender,owner,assignment);
+  if(gather)return gather;
   const freshDrive=ball.liveReception&&defender.teamBrain.intent.helpFor===owner.id&&defender.teamBrain.intent.helpHeldAt===owner.heldAt&&
    !settledManPossession(g,owner)&&owner.state==='idle'&&owner.moving;
   const lead=Math.min(defender.teamBrain.react,A.leadTime);
@@ -733,6 +735,30 @@ if(G?.owner===n.id&&G.phase==="cut"&&!u&&p>=a.contestRange&&f>H&&z(t.players[G.c
  const target=Tn(g,defender,owner);
  const pace=z(defender,target)>a.contestRange?1.35:.85*(defender.teamBrain.difficulty?.helpPaceScale??1);
  return {...P('help-lane',target,pace),settleShade:true,helpFor:owner.id,helpHeldAt:owner.heldAt};
+}
+const layupGatherAliases={R:a,AI:A,FINISH:he,gap:z,basketSide:we,attackHoop:Y,manHelpPoint:Tn,openPassLane:K,plan:P,steerResponse:pt};
+function followLayupGather(g,a,owner,assignment){
+ const {R,AI,FINISH,gap,basketSide,attackHoop,manHelpPoint,openPassLane,plan,steerResponse}=layupGatherAliases;
+ if(g.team.difficulty!=='legend'||owner.state!=='finish-steps'||owner.shot?.kind!=='layup'||owner.air||owner.offBalance||
+  a.state!=='idle'||a.air||a.offBalance||a.winded||a.ultimate||!a.guard||basketSide(assignment.primary,owner))return null;
+ const v=owner.finishVelocity,speed=Math.hypot(v.x,v.z);
+ const mind=a.teamBrain,lead=Math.min(mind.react,AI.leadTime,owner.duration-owner.age);
+ if(lead<FINISH.plantTime||speed*lead<=R.bodyRadius)return null;
+ const dx=a.x-owner.x,dz=a.z-owner.z;
+ // Keep a square body stop. The gather's velocity still points forward even if contact blocks it.
+ if(dx*v.x+dz*v.z<=0||Math.abs(dx*v.z-dz*v.x)<=R.bodyRadius*speed)return null;
+ const ahead={x:owner.x+v.x*lead,z:owner.z+v.z*lead,hoop:attackHoop(owner)};
+ if(basketSide(a,ahead))return null;
+ const target=manHelpPoint(g,a,owner);
+ const distance=gap(a,target),body=R.bodyRadius*2;
+ if(distance<=R.bodyRadius||!basketSide(target,ahead))return null;
+ const response=mind.react*steerResponse,damping=-response*Math.expm1(-lead/response);
+ const travel=(lead-damping)*Math.min(1,distance/body)/distance,speedLimit=a.ability.moveSpeed;
+ const feet={x:a.x+speedLimit*(mind.steer.x*damping+(target.x-a.x)*travel),
+  z:a.z+speedLimit*(mind.steer.z*damping+(target.z-a.z)*travel)};
+ if(gap(a,feet)<=R.bodyRadius||!basketSide(feet,ahead)||gap(feet,ahead)>R.contestRange||!openPassLane(g,a,target,body))return null;
+ // Passes are unavailable during this grounded layup action. A cancel returns to the usual reads.
+ return {...plan('help-lane',target,1),helpFor:owner.id,helpHeldAt:owner.heldAt};
 }
 const continueRimHelpAliases={R:a,gap:z,basketSide:we,aim:$,manHelpPoint:Tn,openPassLane:K};
 function continueRimHelp(g,a,owner,assignment,ahead){
