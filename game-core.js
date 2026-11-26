@@ -559,6 +559,11 @@ let L=s.filter(ne=>["cut","roll"].includes(ne.teamBrain?.intent.kind)&&z(ne,o)+a
     }
    }
    const kind=d?'escape-trap':D(Pe.receiver)?'reset-outlet':'kick-out';
+   if(kind==='kick-out'&&le!==null&&t.team.difficulty==='legend'&&!R&&
+    (!c||c==='balanced')&&!I?.request&&G?.owner!==n.id&&p<a.bodyRadius*2){
+    const lead=leadBeforeRelief(e,Pe,f,h);
+    if(lead)return P(kind,null,0,{key:'pass',...lead});
+   }
    if(!d&&!R&&i.intent.kind==='use-screen'&&i.screenBrakeAt>=Math.max(n.heldAt,t.time-i.react)&&
     Pe.style==='direct'&&Pe.receiver.moving&&!C(Pe.receiver)){
     const delivery=Je(t,n,Pe.receiver,h,['direct']);
@@ -757,6 +762,32 @@ function pullUpAfterDrive(context,range,space,deadline){
   betterCatchDelivery(g,a,pool,hoop,space,deadline,false))return null;
  // Take the midrange window as the drive closes, before continuing into help.
  return plan('shoot',a,0,{key:'jump'});
+}
+const leadReliefAliases={R:a,human:C,passBall:De,gap:z,passLanding:je,returnHasRoom:jl,courtPlayers:V,airShotTiming:Re,readDelivery:Je};
+function leadBeforeRelief({g,a,pool,hoop},outlet,range,deadline){
+ const {R,human,passBall,gap,passLanding,returnHasRoom,courtPlayers,airShotTiming,readDelivery}=leadReliefAliases;
+ const {receiver:original,style}=outlet;
+ if(human(original))return null;
+ const flight=passBall(g,a,original,style);
+ if(!flight||range-gap(passLanding(flight),hoop)>=R.bodyRadius*2||
+  returnHasRoom(g,a,original,style,R.contestRange,range,flight))return null;
+ const defenders=courtPlayers(g).filter(p=>p.team!==a.team&&!p.offBalance);
+ const release=airShotTiming().ideal;
+ let lead=null,bestRange=range-R.contestRange;
+ for(const receiver of pool){
+  if(receiver===original||!receiver.moving||human(receiver))continue;
+  const delivery=readDelivery(g,a,receiver,deadline,['direct'],{closing:true,stopAt:receiver.teamBrain.intent.target,
+   acceptLanding:(point,arrival)=>{
+    if(gap(point,hoop)>bestRange)return false;
+    const ready=arrival+Math.max(R.catchTime,receiver.teamBrain.react);
+    return defenders.every(p=>defenderRoomAtPoint(p,point,arrival,ready+release)>=R.contestRange);
+   }});
+  if(delivery?.catchPoint){
+   lead=delivery;
+   bestRange=gap(delivery.catchPoint,hoop);
+  }
+ }
+ return lead;
 }
 function shotBeforeHandoff(context,outlet,runner,range,space,deadline){
  const {R,AI,airShotTiming,aim,courtPlayers,gap,plan}=handoffShotAliases;
