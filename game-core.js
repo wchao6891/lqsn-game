@@ -451,12 +451,18 @@ let L=s.filter(ne=>["cut","roll"].includes(ne.teamBrain?.intent.kind)&&z(ne,o)+a
   // A moving lead sometimes opens up when there is no chest pass to the
   // cutter's current position. Compare that landing with the carrier's shot too.
   const release=Re().ideal,toward=$(n,o);
-  const compareLead=L.length&&!j&&t.team.format==='5v5'&&t.team.difficulty==='legend'&&!t.teamExercise&&!t.inbound&&
-   t.courtProgress?.front&&openCatch&&(!c||c==='balanced')&&!R&&(!I||I.phase==='expired')&&!G&&
+  // Spacing alone misses n planted jumper when the m defender is trailing.
+  const compareTrailing=j&&Pe(j)&&!d&&t.ball.liveReception&&p>=A.reachRange&&
+   p<a.contestRange&&(m.x-n.x)*toward.x+(m.z-n.z)*toward.z<0&&
+   n.face.x*toward.x+n.face.z*toward.z>=a.defensiveCone;
+  const compareLead=L.length&&(!j&&openCatch||compareTrailing)&&
+   t.team.format==='5v5'&&t.team.difficulty==='legend'&&!t.teamExercise&&!t.inbound&&
+   t.courtProgress?.front&&(!c||c==='balanced')&&!R&&(!I||I.phase==='expired')&&!G&&
    n.state==='idle'&&!n.passMotion&&!n.shot&&!n.air&&!n.offBalance&&!n.ultimate&&!n.sprinting&&n.cooldown<=0&&
    f>a.layupRange&&f<=a.normalRange&&h>A.shotUrgency&&Qe-t.laneSeconds[n.id]>release&&
    n.stamina>=(a.staminaCosts.jump+a.staminaCosts.shoot)/(n.ability.staminaEfficiency??1)&&
-   squareForPullUp(n,toward,release)&&!pullUpThreat(t,n,toward,release,true);
+   squareForPullUp(n,toward,release)&&!pullUpThreat(t,n,toward,release,true)&&
+   (!compareTrailing||!V(t).some(d=>d.team!==n.team&&activeStealAtBall(t,n,d,release)));
   let useOpenJumper=false;
   for(const cutter of L.sort((p,q)=>$e(t,n,q)-$e(t,n,p))){
    const roll=cutter.teamBrain.intent.kind==='roll';
