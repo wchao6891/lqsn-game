@@ -682,29 +682,51 @@ let L=s.filter(ne=>["cut","roll"].includes(ne.teamBrain?.intent.kind)&&z(ne,o)+a
     t.ball.handoffWaitUntil??=t.time+D.arrival;
     return P('wait-handoff',n,0);
    }
-}}if(!x&&q&&p<a.contestRange&&t.time-i.lastPass>i.react*4){let D=pe=>{let Ne=pe.teamBrain.intent;return Ne.kind==="safety-outlet"&&Ne.owner===n.id&&Ne.heldAt===n.heldAt&&z(pe,Ne.target)<=a.bodyRadius*2},L=s.filter(pe=>(d||i.role==="organizer"||z(pe,o)<f||D(pe))&&z(pe,Z(t,pe))>p+a.bodyRadius),j=t.assistPlay,le=t.team.format==="5v5"&&!t.teamExercise&&!t.inbound&&t.courtProgress?.front&&!d&&t.ball.liveReception&&j?.receiver===n.id&&j.caughtAt===n.heldAt&&!j.handoff&&!j.manual?j.passer:null,Pe=rs(t,n,L,(pe,Ne)=>pe.id===le&&!C(pe)&&!jl(t,n,pe,Ne,p+a.bodyRadius,f)||keepRollFinish(pe)?-1/0:$e(t,n,pe),!u&&(d||t.team.format==="5v5"));if(Pe){const shot=!d&&!R&&shotBeforeReset(e,Pe,f,p,h);
+}}if(!x&&q&&p<a.contestRange&&t.time-i.lastPass>i.react*4){let D=pe=>{let Ne=pe.teamBrain.intent;return Ne.kind==="safety-outlet"&&Ne.owner===n.id&&Ne.heldAt===n.heldAt&&z(pe,Ne.target)<=a.bodyRadius*2},L=s.filter(pe=>(d||i.role==="organizer"||z(pe,o)<f||D(pe))&&z(pe,Z(t,pe))>p+a.bodyRadius),j=t.assistPlay,le=t.team.format==="5v5"&&!t.teamExercise&&!t.inbound&&t.courtProgress?.front&&!d&&t.ball.liveReception&&j?.receiver===n.id&&j.caughtAt===n.heldAt&&!j.handoff&&!j.manual?j.passer:null;
+  const keepAdvance=le!==null&&f>a.normalRange&&t.team.difficulty==='legend'&&!R&&(!c||c==='balanced')&&
+   !I?.request&&G?.owner!==n.id&&!C(n)&&n.state==='idle'&&n.moving&&!n.sprinting&&!n.air&&!n.offBalance&&
+   ['drive','drive-rim'].includes(i.intent.kind);
+  const score=(receiver,style)=>receiver.id===le&&!C(receiver)&&!jl(t,n,receiver,style,p+a.bodyRadius,f)||keepRollFinish(receiver)?
+   -Infinity:$e(t,n,receiver);
+  const allowLob=!u&&(d||t.team.format==='5v5');
+  const look=rs(t,n,L,score,allowLob);
+  if(look){
+   const shot=!d&&!R&&shotBeforeReset(e,look,f,p,h);
    if(shot)return shot;
-   if(Pe.receiver.id===le&&!C(Pe.receiver)&&!R&&(!c||c==='balanced')&&t.team.difficulty==='legend'){
-    const flight=De(t,n,Pe.receiver,Pe.style);
-    if(flight&&z(je(flight),o)>a.normalRange){
+   // A return can clear pressure and still leave the next carrier out of f.
+   // Check the other running outlets before sending the ball back there.
+   let outOfRangeReturn,returnRange;
+   if(look.receiver.id===le&&!C(look.receiver)&&!R&&(!c||c==='balanced')&&t.team.difficulty==='legend'){
+    const flight=De(t,n,look.receiver,look.style);
+    returnRange=flight&&z(je(flight),o);
+    if(returnRange>a.normalRange){
+     outOfRangeReturn=flight;
      for(const runner of s){
-      if(runner===Pe.receiver||!runner.moving||C(runner)||keepRollFinish(runner))continue;
+      if(runner===look.receiver||!runner.moving||C(runner)||keepRollFinish(runner))continue;
       const delivery=Vn(t,n,[runner],o,p,h,false);
-      if(delivery?.style==='direct'&&delivery.catchPoint)return P('kick-out',null,0,{key:'pass',...delivery});
+      if(delivery?.style==='direct'&&delivery.catchPoint)return P('kick-out',null,0,{key:'He',...delivery});
      }
     }
    }
-   const kind=d?'escape-trap':D(Pe.receiver)?'reset-outlet':'kick-out';
+   const kind=d?'escape-trap':D(look.receiver)?'reset-outlet':'kick-out';
    if(kind==='kick-out'&&le!==null&&t.team.difficulty==='legend'&&!R&&
     (!c||c==='balanced')&&!I?.request&&G?.owner!==n.id&&p<a.bodyRadius*2){
-    const lead=leadBeforeRelief(e,Pe,f,h);
-    if(lead)return P(kind,null,0,{key:'pass',...lead});
+    const lead=leadBeforeRelief(e,look,f,h);
+    if(lead)return P(kind,null,0,{key:'He',...lead});
    }
-   if(!d&&!R&&i.intent.kind==='use-screen'&&i.screenBrakeAt>=Math.max(n.heldAt,t.time-i.react)&&
-    Pe.style==='direct'&&Pe.receiver.moving&&!C(Pe.receiver)){
-    const delivery=Je(t,n,Pe.receiver,h,['direct']);
-    if(delivery?.catchPoint)return P(kind,null,0,{key:'pass',...delivery});
-   }else return He(Pe.receiver,kind,Pe.style);}}if(re)return P("angle-pop",re,.85);let fe=!u&&Vl(t,n,o);if(fe&&(!F?.front||se(n,fe.target,a.bodyRadius*2))){
+   if(!d&&!R&&i.intent.kind==='use-I'&&i.screenBrakeAt>=Math.max(n.heldAt,t.time-i.react)&&
+    look.style==='direct'&&look.receiver.moving&&!C(look.receiver)){
+    const delivery=Je(t,n,look.receiver,h,['direct']);
+    if(delivery?.catchPoint)return P(kind,null,0,{key:'He',...delivery});
+   }else if(keepAdvance&&outOfRangeReturn&&(returnRange+a.bodyRadius>=f||
+    !jl(t,n,look.receiver,look.style,Math.max(p+a.bodyRadius,a.contestRange),f,outOfRangeReturn))){
+    // Keep advancing when the only return leaves both players out of shooting f without room to progress.
+    const other=rs(t,n,L.filter(receiver=>receiver!==look.receiver),score,allowLob);
+    if(other)return He(other.receiver,D(other.receiver)?'reset-outlet':'kick-out',other.style);
+   }else return He(look.receiver,kind,look.style);
+  }
+ }
+if(re)return P("angle-pop",re,.85);let fe=!u&&Vl(t,n,o);if(fe&&(!F?.front||se(n,fe.target,a.bodyRadius*2))){
  const canKeepExit=!t.teamScreen?.request&&i.intent.kind==='reset-angle'&&i.intent.catchRouteHeldAt===n.heldAt&&t.time<i.commitUntil&&
   z(n,i.intent.target)>a.bodyRadius&&ke(t,n,i.intent.target);
  if(canKeepExit){
@@ -1389,8 +1411,8 @@ function Oc(g,actor,mind){
  return P('shoot',actor,0,{key:'jump'});
 }
 
-function closesToReach(carrier,defender,seconds,velocity=carrier.velocity){
- if(defender.state!=='idle'||!defender.moving||defender.air||defender.offBalance||defender.ultimate)return false;
+function closesToReach(carrier,defender,seconds,velocity=carrier.velocity,allowStationary=false){
+ if(defender.state!=='idle'||!defender.moving&&!allowStationary||defender.air||defender.offBalance||defender.ultimate)return false;
  const toCarrier=$(defender,carrier);
  if(defender.face.x*toCarrier.x+defender.face.z*toCarrier.z<a.defensiveCone)return false;
  const x=defender.x-carrier.x,z=defender.z-carrier.z;
@@ -1404,8 +1426,11 @@ function closesToReach(carrier,defender,seconds,velocity=carrier.velocity){
 function Uc(g,carrier){
  const ball=g.ball;
  if(g.team.format!=='5v5'||g.team.difficulty!=='legend'||g.teamExercise||g.inbound||g.freeThrows||
-  ball.owner!==carrier.id||ball.state!=='held'||!ball.liveReception||ball.movingCatch||
-  !(g.time-carrier.heldAt>=a.catchTime&&g.time<carrier.protectedUntil)||
+  ball.owner!==carrier.id||ball.state!=='held'||!ball.liveReception)return null;
+ const held=g.time-carrier.heldAt;
+ const runningCatch=ball.movingCatch&&!ball.movingCatch.handoff&&g.courtProgress?.front&&se(carrier,carrier.courtFooting??carrier)&&
+  !C(carrier)&&carrier.state==='idle'&&carrier.moving&&!carrier.sprinting&&held<a.catchTime+carrier.teamBrain.react;
+ if(ball.movingCatch&&!runningCatch||!(held>=a.catchTime&&(g.time<carrier.protectedUntil||runningCatch))||
   !['idle','receive'].includes(carrier.state)||carrier.air||carrier.offBalance||carrier.passMotion||carrier.shot||carrier.ultimate||carrier.cooldown>0||
   g.teamScreen?.request&&g.teamScreen.owner===carrier.id||g.offBallScreen?.owner===carrier.id||st(g,carrier.team)||
   Math.min(g.shotClock,g.team.remaining)<=A.shotUrgency)return null;
@@ -1416,7 +1441,12 @@ function Uc(g,carrier){
  const pressure=z(carrier,defender);
  const release=Ce(Ae.direct);
  const reaching=defender.state==='steal';
- if(reaching){
+ const hoop=runningCatch?Y(carrier):null,range=hoop?z(carrier,hoop):Infinity;
+ if(runningCatch){
+  // A settled runner can carry the ball into the reach of carrier planted defender.
+  const reachStart=a.stealActiveStart/defender.ability.stealRate;
+  if(range<=a.layupRange||defender.moving||pressure>A.reachRange+a.bodyRadius||!closesToReach(carrier,defender,release+reachStart,carrier.velocity,true))return null;
+ }else if(reaching){
   if(defender.contact||pressure>A.reachRange)return null;
   const phase=defender.age*defender.ability.stealRate;
   if(phase<a.stealActiveStart||a.stealActiveEnd-phase<=release*defender.ability.stealRate)return null;
@@ -1427,8 +1457,18 @@ function Uc(g,carrier){
  const options=V(g).filter(p=>p!==carrier&&p.team===carrier.team&&!p.air&&!p.offBalance&&!p.ultimate);
  const receiver=et(g,carrier,options,p=>{
   const space=z(p,Z(g,p));
-  return space>pressure&&(reaching?space>=Qi:space>=a.contestRange&&jl(g,carrier,p,'direct',a.contestRange,a.layupRange))
-   ?$e(g,carrier,p,space):-Infinity;
+  if(space<=pressure||space<(reaching?Qi:a.contestRange))return -Infinity;
+  let flight;
+  if(runningCatch){
+   if(!se(p))return -Infinity;
+   const {x,z}=p.velocity;
+   flight=ra(g,carrier,p,'direct')?sa(g,carrier,p,{windup:release}):
+    De(g,carrier,{...p,x:p.x+x*release,z:p.z+z*release});
+   const landing=flight&&je(flight);
+   // Preserve an established scoring position if the outlet would take the ball out of shooting range.
+   if(!landing||!se(p,landing)||range<=a.normalRange&&z(landing,hoop)>a.normalRange)return -Infinity;
+  }
+  return reaching||jl(g,carrier,p,'direct',a.contestRange,a.layupRange,flight)?$e(g,carrier,p,space):-Infinity;
  },'direct',true);
  return receiver?He(receiver,reaching?'reach-outlet':'pressure-outlet'):null;
 }
