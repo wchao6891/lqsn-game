@@ -191,39 +191,7 @@ void main(){
  vec3 rgb=max(gl_FragColor.rgb,vec3(0.0));
  gl_FragColor=vec4(rgb/max(1.0,max(rgb.r,max(rgb.g,rgb.b))),clamp(gl_FragColor.a,0.0,1.0)*skillLightGain);
 }`);let a=new ge.ShaderMaterial({uniforms:r,defines:t.defines||{},vertexShader:ss,fragmentShader:i,transparent:!0,blending:ge.CustomBlending,blendSrc:zo[t.srcBlend],blendDst:zo[t.dstBlend],blendSrcAlpha:t.srcBlendAlpha==null?null:zo[t.srcBlendAlpha],blendDstAlpha:t.dstBlendAlpha==null?null:zo[t.dstBlendAlpha],depthWrite:!1,depthTest:!0,side:[ge.DoubleSide,ge.BackSide,ge.FrontSide][t.cull],forceSinglePass:!0,toneMapped:!1});return(t.protectCharacter||o?.protectSubject)&&lr(a),a}var xr=new ve.Matrix4,ds=new ve.Matrix4,hs=new ve.Sphere,$t=(t,e)=>{t.clearUpdateRanges(),t.addUpdateRange(0,e*t.itemSize),t.needsUpdate=!0};function gr(t,e,n){t.geometry.boundingSphere||t.geometry.computeBoundingSphere();let{layer:o,maps:r}=t,i=o.modules.InitialModule.maxNumParticles,a=t.geometry.clone();o.material.defines?.SOURCE_VIEW_NORMALS||a.deleteAttribute("normal");for(let l of["instanceTint","instanceFrame","instanceCustom"])a.setAttribute(l,new ve.InstancedBufferAttribute(new Float32Array(i*4),4).setUsage(ve.DynamicDrawUsage));o.material.defines?._CUSTOMDATA_ON&&a.setAttribute("instanceCustom2",new ve.InstancedBufferAttribute(new Float32Array(i*4),4).setUsage(ve.DynamicDrawUsage));let c=new ve.InstancedMesh(a,Ao(o.material,r,e,n),i);c.name=o.track+"/"+o.node,c.renderOrder=o.renderer.m_SortingOrder,c.instanceMatrix.setUsage(ve.DynamicDrawUsage),c.count=0,c.visible=!1,c.frustumCulled=!1;let s=Array.from({length:i},()=>{let l=new ve.Object3D;return l.name=c.name,l.visible=!1,l.tint=new ve.Vector4,l.uvFrame=new ve.Vector4(1,1,0,0),l.custom=new ve.Vector4,o.material.defines?._CUSTOMDATA_ON&&(l.custom2=new ve.Vector4),l});return{batch:c,samples:s}}function yr(t,e,n=null){let{batch:o,samples:r}=t;o.count=0;let i=r.find(m=>m.visible&&m.scale.x*m.scale.y*m.scale.z!==0),a=i?Math.sign(i.scale.x*i.scale.y*i.scale.z):1;o.scale.x=a,xr.makeScale(a,1,1);let{instanceTint:c,instanceFrame:s,instanceCustom:l,instanceCustom2:u}=o.geometry.attributes;for(let m of r)if(m.visible){if(m.updateMatrix(),n&&!n.intersectsSphere(hs.copy(o.geometry.boundingSphere).applyMatrix4(m.matrix)))continue;let f=o.count++;o.setMatrixAt(f,ds.copy(m.matrix).premultiply(xr));let{tint:d,uvFrame:h,custom:p,custom2:T}=m;c.setXYZW(f,d.x,d.y,d.z,d.w),s.setXYZW(f,h.x,h.y,h.z,h.w),l.setXYZW(f,p.x,p.y,p.z,p.w),T&&u.setXYZW(f,T.x,T.y,T.z,T.w)}if(o.visible=o.count>0,o.material.uniforms.time.value=e,o.visible){let m=o.count;$t(o.instanceMatrix,m),$t(c,m),$t(s,m),$t(l,m),u&&$t(u,m)}}function br(t){t.batch.visible=!1,t.batch.count=0;for(let e of t.samples)e.visible=!1;t.emitter?.reset()}var ko=class{constructor(e,n){this.layer=e,this.scheduled=n,this.reset()}reset(){this.previous=null,this.cursor=0,this.distance=0,this.serial=0,this.live=[]}update(e,n){let o=this.layer,r=(o.timing.m_ClipIn+e*o.timing.m_TimeScale)*o.speed;this.previous&&r<this.previous.local&&this.reset();let i=this.previous??{local:Math.min(0,r),matrix:n},a=r-i.local,c=[];for(;this.cursor<this.scheduled.length&&this.scheduled[this.cursor].born<=r;){let l=this.scheduled[this.cursor++];c.push({born:l.born,particle:l})}let s=o.modules.EmissionModule.rateOverDistance.scalar;if(e>=0&&e<o.timing.m_Duration&&a>0&&s>0){let l=i.matrix.elements,u=n.elements,m=Math.hypot(u[12]-l[12],u[13]-l[13],u[14]-l[14]),f=Math.max(0,(o.delay-i.local)/a),d=m*(1-Math.min(1,f)),h=this.distance,p=h+d;for(let T=(Math.floor(h*s+1e-9)+1)/s;T<=p+1e-9;T+=1/s){let g=f+(1-f)*(T-h)/d,b=i.local+g*a;c.push({born:b,serial:++this.serial})}this.distance=p}c.sort((l,u)=>l.born-u.born);for(let l of c){this.live=this.live.filter(p=>p.particle.born+p.particle.life>l.born+1e-9);let u=new Set(this.live.map(p=>p.particle.slot)),m=0;for(;u.has(m);)m++;if(m>=o.modules.InitialModule.maxNumParticles)continue;let f=l.particle?{...l.particle,slot:m}:ar(o,l.born,m,l.serial);if(!f)continue;let d=a>0?Math.max(0,Math.min(1,(l.born-i.local)/a)):1,h=n.clone();for(let p=12;p<15;p++)h.elements[p]=i.matrix.elements[p]+(n.elements[p]-i.matrix.elements[p])*d;this.live.push({particle:f,matrix:h})}return this.live=this.live.filter(l=>l.particle.born+l.particle.life>r),this.previous={local:r,matrix:n.clone()},this.live}};import*as Ye from"./vendor/three.module.js";var Ro=class{constructor(e,n,o){this.layer=e,this.points=[],this.head=null,this.capacity=0,this.mesh=new Ye.Mesh(new Ye.BufferGeometry,Ao({...e.material,defines:{...e.material.defines,SOURCE_TRAIL:1}},n,o)),this.mesh.name=e.track+"/"+e.node,this.mesh.frustumCulled=!1,this.mesh.visible=!1,this.mesh.renderOrder=e.order,this.gradient={minMaxState:1,maxGradient:e.parameters.colorGradient}}clear(){this.points.length=0,this.head=null,this.mesh.visible=!1,this.mesh.geometry.setDrawRange(0,0)}reserve(e){if(e<=this.capacity)return;this.capacity=Math.max(e,this.capacity*2,2);let n=new Ye.BufferGeometry,o=this.capacity*2;for(let[i,a]of[["position",3],["uv",2],["trailTint",4]])n.setAttribute(i,new Ye.BufferAttribute(new Float32Array(o*a),a).setUsage(Ye.DynamicDrawUsage));let r=[];for(let i=0;i<this.capacity-1;i++){let a=i*2;r.push(a,a+1,a+2,a+1,a+3,a+2)}n.setIndex(r),this.mesh.geometry.dispose(),this.mesh.geometry=n}update(e,n,o){this.head&&e<this.head.time&&this.clear();let r=this.layer.minVertexDistance,i=this.layer.lifetime;if(!this.head)this.points.push({position:n.clone(),time:e});else if(e>this.head.time){n.distanceToSquared(this.head.position)<1e-18&&this.points.at(-1).position.distanceToSquared(this.head.position)>1e-18&&this.points.push(this.head);let g=this.points.at(-1),b=n.clone().sub(g.position),w=b.length();for(let S=r;S<=w+1e-9;S+=r){let v=Math.min(1,S/w);this.points.push({position:g.position.clone().addScaledVector(b,v),time:g.time+(e-g.time)*v})}}this.head={position:n.clone(),time:e};let a=e-i;for(;this.points.length>1&&this.points[1].time<=a;)this.points.shift();let c=this.points.map(g=>({position:g.position,time:g.time}));if(c.at(-1).position.distanceToSquared(n)>1e-18&&c.push(this.head),c.length>1&&c[0].time<a){let g=c[0],b=c[1],w=Math.min(1,(a-g.time)/(b.time-g.time));c[0]={position:g.position.clone().lerp(b.position,w),time:a}}if(c.length<2||c.at(-1).time<=a){this.mesh.visible=!1,this.mesh.geometry.setDrawRange(0,0);return}c.reverse();let s=[0];for(let g=1;g<c.length;g++)s.push(s[g-1]+c[g].position.distanceTo(c[g-1].position));let l=s.at(-1);if(l<1e-9){this.mesh.visible=!1,this.mesh.geometry.setDrawRange(0,0);return}this.reserve(c.length);let u=this.mesh.geometry,m=u.attributes,f=this.layer.parameters,d=new Ye.Vector3,h=new Ye.Vector3,p=new Ye.Vector3,T=new Ye.Vector3(1,0,0).applyQuaternion(o.quaternion);for(let g=0;g<c.length;g++){let b=c[g].position,w=s[g]/l,S=Ht(f.widthCurve.m_Curve,w)*f.widthMultiplier/2,v=Xt(this.gradient,w);d.subVectors(c[Math.max(0,g-1)].position,c[Math.min(c.length-1,g+1)].position).normalize(),p.subVectors(o.position,b).normalize(),h.crossVectors(d,p),h.lengthSq()<1e-18?h.copy(T):h.normalize();for(let y=0;y<2;y++){let _=g*2+y,R=y?1:-1;m.position.setXYZ(_,b.x+h.x*S*R,b.y+h.y*S*R,b.z+h.z*S*R),m.uv.setXY(_,w*f.textureScale.x,y*f.textureScale.y),m.trailTint.setXYZW(_,v.r,v.g,v.b,v.a)}}for(let g of Object.values(m))g.needsUpdate=!0;u.setDrawRange(0,(c.length-1)*6),this.mesh.material.uniforms.time.value=e,this.mesh.visible=!0}dispose(){this.clear(),this.mesh.geometry.dispose(),this.mesh.material.dispose()}};var ps={gain:.3},xs={gain:.25,protectSubject:!0},Tr={gain:.36,protectSubject:!0},_n={gain:.55,protectSubject:!0},Mr={protectSubject:!0},gs=new Map([["baodian",Tr],["GLOW",Tr],["path",_n],["yuan (5)",_n],["yuan (6)",Mr],["yuan (7)",_n]]);function wr(t,e){if(t==="xiya"){if(e.material.protectCharacter)return ps;if(e.track==="Effect_SS_0301_ult_light_03"&&e.material.name==="FX_glow_032_zg")return xs;if(e.track==="Effect_SS_0301_ult_trail_02"&&e.node==="wuxianpu_03_trail_03")return Mr}if(t==="reina"&&e.binding==="Basket@Root"&&e.track==="Effects_dunk_ult")return gs.get(e.node)}function vr(t){return t==="xiya"||t==="reina"}import*as je from"./vendor/three.module.js";var _r=[je.RepeatWrapping,je.ClampToEdgeWrapping,je.MirroredRepeatWrapping],Qt,Bt,Bo=class{constructor(e=new je.TextureLoader){Le(this,Qt);Le(this,Bt,new Map);We(this,Qt,e)}load(e,n,{m_WrapU:o,m_WrapV:r,m_FilterMode:i}){let a=new URL(n,e).href,c=JSON.stringify([a,o,r,i]);if(be(this,Bt).has(c))return be(this,Bt).get(c);let s=be(this,Qt).loadAsync(a).then(l=>(l.wrapS=_r[o],l.wrapT=_r[r],l.magFilter=i===0?je.NearestFilter:je.LinearFilter,l.minFilter=i===2?je.LinearMipmapLinearFilter:l.magFilter,l.generateMipmaps=i===2,l)).catch(l=>{throw be(this,Bt).delete(c),l});return be(this,Bt).set(c,s),s}};Qt=new WeakMap,Bt=new WeakMap;var Jt=t=>new H.Vector3(t.x,t.y,t.z);function Sr(t,e,n){return new H.Vector3(t.x-n.z*e.x+n.x*e.z,t.y+e.y,t.z+n.x*e.x+n.z*e.z)}function zr(t){let e=new H.Matrix4;for(let i of t.chain)e.multiply(new H.Matrix4().compose(Jt(i.position),new H.Quaternion(i.rotation.x,i.rotation.y,i.rotation.z,i.rotation.w),Jt(i.scale)));let n=new H.Vector3,o=new H.Quaternion,r=new H.Vector3;return e.decompose(n,o,r),t.scalingMode===1&&r.copy(Jt(t.chain.at(-1).scale)),o.set(o.x,-o.y,-o.z,o.w),{position:n,quaternion:o,scale:r}}function ys(t){let e=new H.BufferGeometry;e.setAttribute("position",new H.Float32BufferAttribute(t.positions.flatMap(([o,r,i])=>[-o,r,i]),3)),e.setAttribute("uv",new H.Float32BufferAttribute(t.uv.flat(),2)),t.normals&&e.setAttribute("normal",new H.Float32BufferAttribute(t.normals.flatMap(([o,r,i])=>[-o,r,i]),3));let n=t.indices.slice();for(let o=0;o<n.length;o+=3)[n[o+1],n[o+2]]=[n[o+2],n[o+1]];return e.setIndex(n),e}function Ar(t,e,n){let o=t.layer,r=o.placement.m_EulerAngles,i=new H.Quaternion().setFromAxisAngle(H.Object3D.DEFAULT_UP,Math.atan2(n.x,n.z)),a=new H.Quaternion().setFromEuler(new H.Euler(r.x*Math.PI/180,-r.y*Math.PI/180,-r.z*Math.PI/180,"YXZ")),c=(o.placement.m_useWorldRotation?new H.Quaternion:i).multiply(a),s=t.transform.position;return e.add(new H.Vector3(-s.x,s.y,s.z).applyQuaternion(c)),c.multiply(t.transform.quaternion),new H.Matrix4().compose(e,c,t.transform.scale)}
-function primeEffectMesh(renderer,scene,camera,mesh){
- const visible=scene.children.filter(object=>object!==mesh&&object.visible&&!object.isLight);
- const {background}=scene,{autoClear}=renderer,scissor=renderer.getScissor(new H.Vector4()),scissorTest=renderer.getScissorTest();
- try{
-  scene.background=null;
-  for(const object of visible)object.visible=false;
-  renderer.autoClear=false;renderer.setScissor(0,0,0,0);renderer.setScissorTest(true);
-  mesh.visible=true;
-  if(mesh.isInstancedMesh)mesh.count=1;
-  renderer.render(scene,camera);
- }finally{
-  mesh.visible=false;
-  if(mesh.isInstancedMesh)mesh.count=0;
-  for(const object of visible)object.visible=true;
-  scene.background=background;
-  renderer.setScissor(scissor);renderer.setScissorTest(scissorTest);renderer.autoClear=autoClear;
- }
-}
-async function finishPrimeDraw(gl){
- const fence=gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE,0);
- if(!fence)return false;
- try{
-  gl.flush();
-  while(!gl.isContextLost()){
-   const result=gl.clientWaitSync(fence,0,0);
-   if(result!==gl.TIMEOUT_EXPIRED)return result!==gl.WAIT_FAILED;
-   await new Promise(requestAnimationFrame);
-  }
-  return false;
- }finally{gl.deleteSync(fence);}
-}
-
-var Co=class{constructor(e,n=Xi){this.scene=e,this.profiles=n,this.assets=new Map,this.trailAssets=new Map,this.loads=new Map,this.active=new Map,this.instances=new Map,this.roster=[],this.textures=new Bo,this.viewProjection=new H.Matrix4,this.frustum=new H.Frustum,this.geometry=new H.PlaneGeometry(1,1),this.white=new H.DataTexture(new Uint8Array([255,255,255,255]),1,1),this.white.needsUpdate=!0;this.primedMeshes=new WeakSet()}setRoster(e){this.roster=[...e];for(let[n,o]of this.instances)if(o.key!==e[n]){this.clear(n);for(let r of o.layers)this.scene.remove(r.batch),r.batch.material.dispose(),r.batch.geometry.dispose();for(let r of o.trails)this.scene.remove(r.trail.mesh),r.trail.dispose();this.instances.delete(n)}} async preload(onReady){
+var Co=class{constructor(e,n=Xi){this.scene=e,this.profiles=n,this.assets=new Map,this.trailAssets=new Map,this.loads=new Map,this.active=new Map,this.instances=new Map,this.roster=[],this.textures=new Bo,this.viewProjection=new H.Matrix4,this.frustum=new H.Frustum,this.geometry=new H.PlaneGeometry(1,1),this.white=new H.DataTexture(new Uint8Array([255,255,255,255]),1,1),this.white.needsUpdate=!0;this.primedPrograms=new WeakSet()}setRoster(e){this.roster=[...e];for(let[n,o]of this.instances)if(o.key!==e[n]){this.clear(n);for(let r of o.layers)this.scene.remove(r.batch),r.batch.material.dispose(),r.batch.geometry.dispose();for(let r of o.trails)this.scene.remove(r.trail.mesh),r.trail.dispose();this.instances.delete(n)}} async preload(onReady){
   const roster=this.roster;
   for(const key of new Set(roster)){
    if(!this.assets.has(key))await It();
@@ -232,34 +200,34 @@ var Co=class{constructor(e,n=Xi){this.scene=e,this.profiles=n,this.assets=new Ma
    if(this.roster===roster)onReady?.(key);
   }
  }
- async primeWhilePaused(id,renderer,camera,canContinue,restoreFrame){
-  const instance=this.instances.get(id),roster=this.roster,renderInfo=renderer.info;
-  if(!instance||instance.primed===renderInfo||this.priming)return;
-  if(this.primedRenderInfo!==renderInfo){this.primedRenderInfo=renderInfo;this.primedMeshes=new WeakSet();}
-  const entries=[...instance.layers.map(({batch})=>({mesh:batch})),...instance.trails.map(({trail})=>({mesh:trail.mesh,trail}))]
-   .filter(({mesh})=>!this.primedMeshes.has(mesh));
+ async primeWhilePaused(ids,renderer,camera,canContinue){
+  if(this.priming||!canContinue())return;
+  const roster=this.roster,renderInfo=renderer.info;
+  if(this.primedRenderInfo!==renderInfo){this.primedRenderInfo=renderInfo;this.primedPrograms=new WeakSet();}
   const gl=renderer.getContext();
-  const current=()=>canContinue()&&this.roster===roster&&this.instances.get(id)===instance&&!this.active.size&&
+  const current=()=>canContinue()&&this.roster===roster&&!this.active.size&&
    !renderer.getRenderTarget()&&renderer.info===renderInfo&&!gl.isContextLost();
   this.priming=true;
   try{
-   for(const {mesh,trail} of entries){
-    await It();
-    if(!current())return;
-    if(trail){trail.reserve(2);mesh.geometry.setDrawRange(0,6);}
-    try{
-     primeEffectMesh(renderer,this.scene,camera,mesh);
-    }finally{
-     trail?.clear();
-     // The browser may discard the old drawing buffer after compositing.
-     restoreFrame();
+   let instance;
+   while((instance=ids.map(id=>this.instances.get(id)).find(entry=>entry&&entry.primed!==renderInfo))){
+    const entries=[...instance.layers.map(({batch})=>({mesh:batch})),...instance.trails.map(({trail})=>({mesh:trail.mesh,trail}))];
+    for(const {mesh,trail} of entries){
+     await It();
+     if(!current())return;
+     trail?.reserve(2);
+     renderer.compile(mesh,camera,this.scene);
+     // Three's compiler links the program. The first use still queries the
+     // driver for uniforms and attributes, which can block in software WebGL.
+     const program=renderer.properties.get(mesh.material).currentProgram;
+     if(!program?.getUniforms)return;
+     if(!this.primedPrograms.has(program)){
+      program.getUniforms();
+      this.primedPrograms.add(program);
+     }
     }
-    // Keep at most one speculative draw in the GPU queue when play resumes.
-    if(!await finishPrimeDraw(gl)||renderer.info!==renderInfo)return;
-    this.primedMeshes.add(mesh);
-    if(!current())return;
+    instance.primed=renderInfo;
    }
-   instance.primed=renderInfo;
   }finally{this.priming=false;}
  }
 
@@ -431,13 +399,17 @@ resize(){let e=this.renderer.domElement,n=e.clientWidth||innerWidth,o=e.clientHe
   ...(raster?{arenaWidth:Math.floor(this.viewportWidth*raster.arena),arenaHeight:Math.floor(this.viewportHeight*raster.arena)}:{})};}
 update(e){let n=this.lastGame!==e,o=n?0:Math.max(0,e.time-this.lastGameTime);this.lastGame=e,this.lastGameTime=e.time,n&&(this.feedback.reset(),this.cameraState=null,this.clearPracticeBalls()),(n||this.checkSerial!==e.checkSerial)&&(this.checkSerial=e.checkSerial,this.jumpAim.reset(),(n||e.practice||e.teamExercise)&&this.resetView(e)),this.jumpAim.update(e,this.view),e.challenge?(this.shootingRacks??(this.shootingRacks=new Yo(this.scene)),this.shootingRacks.update(e)):this.shootingRacks?.root.visible&&this.shootingRacks.reset(),this.ball.visible=e.ball.state!=="rack"&&(e.ball.state!=="scored"||e.ball.scoredAt!==void 0);let r=this.sampledGame===e&&this.sampledTime===e.time&&e.poses,i=e.players.find(v=>v.hang)?.hang,a=Pa(e);(!r||this.sampledHang!==i||this.sampledCatch!==a)&&this.samplePlayers(e,r?0:o,!1);for(let[v,y]of this.actors.entries())y.root.visible=!e.players[v]?.excluded&&!e.players[v]?.bench&&!(e.practice==="shooting"&&v===1);if(e.mode==="ready")this.camera.position.copy(this.playCamera),this.cameraTarget.set(0,.2,.4),this.camera.fov=38,this.cameraState=null;else{this.cameraState=Vo(e,this.view);let v=this.cameraState;this.camera.position.set(v.position.x,v.position.y,v.position.z),this.cameraTarget.set(v.target.x,v.target.y,v.target.z),this.camera.fov=v.fov-this.skillFocusFov(e)}this.arena.update(e,this.camera.position,this.reducedMotion.matches),this.camera.lookAt(this.cameraTarget);let c=e.paused?0:this.feedback.kick(e.time,this.reducedMotion.matches),{viewportWidth:s,viewportHeight:l}=this;c?this.camera.setViewOffset(s,l,0,c,s,l):this.camera.view?.enabled&&this.camera.clearViewOffset(),this.camera.updateProjectionMatrix(),this.feedback.update(e,this.camera);let u=e.ball.state==="restart"?e.inbound?.id:e.ball.owner,m=u==null?e.ball:this.shotOrigins[u]??e.ball;this.ball.position.set(m.x,m.y,m.z);let f=e.ball.movingCatch&&e.players[e.ball.owner]?.state==="receive";if(e.ball.state==="held"&&!e.ball.lowPickup&&!f&&e.ball.catchFrom&&e.ball.catchAge<A.catchTime){let v=Math.min(1,e.ball.catchAge/A.catchTime),y=v*v*(3-2*v),_=e.ball.catchFrom;this.ball.position.set(_.x+(m.x-_.x)*y,_.y+(m.y-_.y)*y,_.z+(m.z-_.z)*y)}let d=e.lastTakeover,h=d&&d.checkSerial===e.checkSerial&&d.at>=(e.lastContact?.at??-1/0),p=h?d:e.lastContact,T=p?e.time-p.at:1/0;if(this.contactFlash.visible=e.mode==="playing"&&T<.22&&(!h||e.ball.owner===d.id),this.contactFlash.visible){let v=h&&e.ball.catchAge>0?this.ball.position:p,y=T/.22;this.contactFlash.position.copy(v),this.contactFlash.lookAt(this.camera.position),this.contactFlash.geometry=h?this.takeoverRing:this.deflectionRing,this.contactFlash.scale.setScalar(h?1.3-.3*y:1+T*3),this.contactFlash.material.opacity=1-y,h?this.contactFlash.material.color.copy(this.teamMarkerMaterials[d.team].color):this.contactFlash.material.color.set(p.kind==="blocked"?"#fff5ae":"#83e6ff")}let g=Be(e),b=e.players[e.ball.owner];if(this.clearLine.visible=!e.team&&e.mustClear&&e.ball.owner===0,this.clearArc&&(this.clearArc.visible=!!(e.team&&e.mustClear&&b?.team===0)),this.clearArc?.visible&&!this.clearArc.geometry.attributes.position){let v=yt(g),y=pe.threePointRadius,_=pe.width/2-pe.cornerInset,R=Math.acos(_/y),k=[new z.Vector3(v.x+_,.035,pe.baseline)];for(let C=0;C<=48;C++){let M=R+(Math.PI-2*R)*C/48;k.push(new z.Vector3(v.x+y*Math.cos(M),.035,v.z+y*Math.sin(M)))}k.push(new z.Vector3(v.x-_,.035,pe.baseline)),this.clearArc.geometry.setFromPoints(k)}if(this.teamMarkers&&(this.teamMarkers.visible=!!e.team&&e.mode!=="ready"),this.teamMarkers?.visible)for(let[v,y]of this.teamMarkers.children.entries()){let _=e.players[v];y.visible=_!==g&&!_.excluded&&!_.bench,y.material=this.teamMarkerMaterials[_.team],y.position.set(_.x,(_.groundY||0)+.025,_.z),this.actors[v].armbandColor=jn[_.team]}let w=e.tip?Math.max(0,e.tip.age):e.time;this.ball.rotation.x=w*3,this.ball.rotation.z=w;let S=this.updatePracticeBalls(e,w);this.marker.update(e),this.contactShadows.update(e,this.ball.visible?this.ball:S??this.ball),this.camera.updateMatrixWorld(),this.attackDirection=this.marker.projectDirection(this.camera,this.view.yaw),this.reboundBallOutline?.update(e,this.actors,this.camera,this.cameraState,this.arena,this.ball),this.ultimateFx.update(e,this.camera,this.ball.position,!0),this.presentMatch(e),this.renderCount=(this.renderCount||0)+1;
   let prime;
-  if(this.desktop&&this.software&&e.mode==='playing'&&e.paused&&e.team?.format==='5v5'&&!e.teamExercise&&!this.hiddenInHighlight){
-   const canPrime=()=>this.lastGame===e&&e.mode==='playing'&&e.paused&&!this.hiddenInHighlight&&Be(e).id===g.id;
+  if(this.desktop&&this.software&&e.mode==='playing'&&(e.paused||this.presentationPending)&&e.team?.format==='5v5'&&!e.teamExercise){
+   const canPrime=()=>this.lastGame===e&&e.mode==='playing'&&e.paused&&!this.hiddenInHighlight&&
+    this.effectPrimeAllowed?.()!==false;
    prime=()=>{
-    if(canPrime())void this.ultimateFx.primeWhilePaused(g.id,this.renderer,this.camera,canPrime,()=>this.renderCourt())
+    if(!canPrime())return;
+    const selected=Be(e),opponent=e.activePlayers.find(a=>a.team!==selected.team);
+    const ids=[selected.id,...(opponent?[opponent.id]:[]),...e.players.filter(a=>a!==selected&&a!==opponent).map(a=>a.id)];
+    void this.ultimateFx.primeWhilePaused(ids,this.renderer,this.camera,canPrime)
      .catch(error=>console.warn('必杀绘制预热未完成',error.message));
    };
    prime();
   }
 
-if(this.presentationPending){let v=this.presentationPending;this.presentationPending=null,It().then(()=>{this.playerKeys===v&&(this.loadScoreEffects(),this.ultimateFx.preload(prime?key=>{if(key===g.character)prime();}:undefined))})}}};export{Ea as GameScene,Oa as buildActor,Ca as buildFinishSamples,_c as buildGameBall,kc as buildPlayerMarker,wc as loadModel,yc as loadPassMotions,gc as loadWalkMotion,Ia as withSharedAnimations};
+if(this.presentationPending){let v=this.presentationPending;this.presentationPending=null,It().then(()=>{this.playerKeys===v&&(this.loadScoreEffects(),this.ultimateFx.preload(prime))})}}};export{Ea as GameScene,Oa as buildActor,Ca as buildFinishSamples,_c as buildGameBall,kc as buildPlayerMarker,wc as loadModel,yc as loadPassMotions,gc as loadWalkMotion,Ia as withSharedAnimations};
