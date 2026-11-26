@@ -263,9 +263,9 @@ function quickShotBeforePaintSkill({g:game,a:player,mind,hoop},skill,deadline){
 }
 function clearLayupSkillPath(g,player,hoop,skill,range,clearance,release){
  const pose={x:player.x,z:player.z,groundY:player.groundY},bounds=Me(g);
- const motion=ni(skill,player,hoop,{approach:range-clearance});
+ const motion=ni(skill,player,hoop,{approach:Math.max(0,range-clearance)});
  if(!motion)return false;
- const opponents=V(g).filter(player=>player.team!==player.team);
+ const opponents=V(g).filter(defender=>defender.team!==player.team);
  for(const sample of skill.samples){
   const time=Math.min(release,sample.t/skill.sourceRate);
   const {ball,lift}=motion.advance(pose,time);
@@ -280,6 +280,16 @@ function clearLayupSkillPath(g,player,hoop,skill,range,clearance,release){
   if(time===release)break;
  }
  return true;
+}
+function cutLayupSkill({g,a:player,hoop,pool},range,deadline){
+ const skill=xe[player.character],support=skill.layupSupport;
+ if(g.team.format!=='5v5'||g.teamExercise||!g.poses||!support||g.teamScreen?.request||
+  deadline<=A.shotUrgency||player.sprinting||player.shot||player.passMotion||_e(g,player))return null;
+ const release=skill.release/skill.sourceRate;
+ const helpsMate=pool.some(p=>support.duties.includes(p.teamSlot+1)&&!(p.layupSupport?.until>g.time+release));
+ if(!helpsMate||!Ss(g,player,hoop,release,deadline)||
+  !clearLayupSkillPath(g,player,hoop,skill,range,Ya(skill.kind),release))return null;
+ return P('skill',player,0,{key:'ultimate',fallback:'layup',move:$(player,hoop)});
 }
 function ac(g,player,hoop,target,range,nearest,space,finishTime){
  const skill=xe[player.character];
@@ -349,7 +359,7 @@ function Zi(e){var Te;let{g:t,a:n,mind:i,hoop:o,anchor:r,pool:s,owner:l,tactic:c
  }
 
 const catchShot=jumpAsRunningCatchSettles(e,f,p,h,R);if(catchShot)return catchShot;
-if(q&&E&&X&&(t.ball.offBallSlip||t.ball.screenRoll||t.ball.backdoor)){let D=(t.ball.screenRoll||t.ball.backdoor)&&ke(t,n,o),L=t.ball.backdoor?a.layupRange-a.bodyRadius*2:a.layupRange;if(f<=L&&(t.ball.offBallSlip||D))return P("finish",o,1,{key:"layup"});if(D&&f<=a.layupRange+a.contestRange&&h>A.shotUrgency)return P("drive",o)}
+if(q&&E&&X&&(t.ball.offBallSlip||t.ball.screenRoll||t.ball.backdoor)){let D=(t.ball.screenRoll||t.ball.backdoor)&&ke(t,n,o),L=t.ball.backdoor?a.layupRange-a.bodyRadius*2:a.layupRange;if(f<=L&&(t.ball.offBallSlip||D))return cutLayupSkill(e,f,h)??P("finish",o,1,{key:"layup"});if(D&&f<=a.layupRange+a.contestRange&&h>A.shotUrgency)return P("drive",o)}
  if(t.ball.screenRoll&&t.team.format==='5v5'&&t.courtProgress?.front&&!t.teamExercise&&!R&&(!c||c==='balanced')&&
   E&&!u&&f>a.layupRange&&f<=a.normalRange&&
   (t.time-n.caughtAt<=a.catchTime+i.react||i.intent.kind==='drive-roll')&&p<a.contestRange&&
