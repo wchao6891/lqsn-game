@@ -561,12 +561,15 @@ const approach=(v*c.x+d*c.z)/speed,lateral=Math.abs(v*c.z-d*c.x)/speed;
    if(e.team.format!=='5v5'||e.teamExercise||n.sprinting||lateral<=a.bodyRadius)return P('contain',t,0);
    const horizon=Math.min(f,t.teamBrain.next-e.time);
    let read=Math.min(horizon,contact),vx=c.x,vz=c.z;
-   if(t.guard&&contact===0){
-    // Body contact stops the inward component, but the carrier can still
-    // slide past while the defender waits for their read and starts moving.
+   if(contact===0){
+    // Continue t slide already tracking the body contact, even if the
+    // previous step did not hold t guard stance.
     const normal=$(n,t),blocked=c.x*normal.x+c.z*normal.z;
-    vx-=blocked*normal.x;vz-=blocked*normal.z;
-    read=Math.min(f,horizon+t.teamBrain.react*pt);
+    const slideX=c.x-blocked*normal.x,slideZ=c.z-blocked*normal.z;
+    if(t.guard||t.moving&&t.velocity.x*slideX+t.velocity.z*slideZ>0){
+     vx=slideX;vz=slideZ;
+     read=Math.min(f,horizon+t.teamBrain.react*pt);
+    }
    }
    const next={x:n.x+vx*read,z:n.z+vz*read,hoop:s};
    if(we(t,next))return P('contain',t,0);
