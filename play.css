@@ -390,6 +390,25 @@ body:not([data-touch-input]) .resource-fill-clip{background:var(--resource-track
 @media(max-width:550px){#match-announcement{padding:6px 9px 7px}#player-resources{width:min(322px,calc(100% - 20px))}}
 @media(max-height:500px){#player-resources{padding-block:5px;gap:3px 8px}}
 
+@media(min-width:851px){
+ body:not([data-touch-input]) :is(#toast,#controls){
+  color:#fff5e0;background:#171b25f7;border:1px solid #edb34e70;clip-path:var(--cut);
+ }
+ body:not([data-touch-input]) #toast{
+  padding:5px 13px 7px;border-bottom:2px solid var(--accent);
+  font-size:clamp(20px,1.6vw,24px);line-height:1.2;font-style:normal;text-shadow:none;
+ }
+ body:not([data-touch-input]) #controls{gap:5px 9px;padding:9px 11px}
+ body:not([data-touch-input]) #controls>span{min-height:22px;color:inherit;font-size:12px}
+ body:not([data-touch-input]) #controls>span b{font-size:inherit}
+ body:not([data-touch-input]) #controls span:not(.active) kbd{background:#302e32}
+ body:not([data-touch-input]) #controls :is(#tactic-hint,#defense-hint,#hint){color:#e3cfac;font-size:11px;line-height:1.4}
+ body:not([data-touch-input]) #hint:empty{display:none}
+ body:not([data-touch-input]) .resource-row{font-size:14px}
+ body:not([data-touch-input]) .resource-row>b{font-size:13px}
+ body:not([data-touch-input]) #player-resources .resource-track{height:12px}
+}
+
 #match-highlights{text-align:left}
 #match-highlights h3{font-size:14px;margin:0 0 5px}
 .highlight-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
