@@ -380,8 +380,11 @@ body:not([data-touch-input]) .scoreboard:has(#score-home-name:not([hidden])) #cl
 #player-resources{width:min(350px,calc(100% - 24px));gap:6px 12px;padding:9px 12px}
 .resource-row{grid-template-columns:2.2em minmax(0,1fr) 4em;gap:7px;font-size:13px;line-height:16px}
 .resource-row>b{text-align:right;font-size:12px;font-variant-numeric:tabular-nums}
-.resource-track{height:10px;background:#363c49;clip-path:var(--cut)}
+.resource-track{height:10px;--resource-track-bg:#363c49;background:var(--resource-track-bg);clip-path:var(--cut)}
 .resource-track i{inset:0;mask:none}
+.resource-fill-clip{position:absolute;inset:0}
+body:not([data-touch-input]) #my-ultimate .resource-track{background:none;clip-path:none}
+body:not([data-touch-input]) .resource-fill-clip{background:var(--resource-track-bg);clip-path:var(--cut)}
 #ultimate-indicator{grid-template-columns:32px 20px}
 #my-ultimate-icon{width:32px;height:32px}
 @media(max-width:550px){#match-announcement{padding:6px 9px 7px}#player-resources{width:min(322px,calc(100% - 20px))}}

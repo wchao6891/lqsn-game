@@ -966,7 +966,14 @@ function swingBeforeBlockedDrive({g,a:actor,mind,hoop,pool,tactic},decision){
  return best&&P('kick-out',null,0,{key:'pass',...best});
 }
 
-var cs=new WeakSet;function Ic(e,t,n,i,o){let r=t.velocity;if(ie(t,{x:i.x+r.x*o,z:i.z+r.z*o}))return!0;let{kind:s,target:l,pace:c}=n.intent;if(e.team.difficulty!=="legend"||s!=="drive"||!l)return!1;let f=z(t,l),m=$(t,l),p=t.ability.moveSpeed*Math.min(1,c)*Math.min(1,f/(a.bodyRadius*2)),u=n.react*pt,x=-u*Math.expm1(-o/u),h=o-x;return ie(t,{x:i.x+r.x*x+m.x*p*h,z:i.z+r.z*x+m.z*p*h})}function settleOnThree({g: game,a: actor,mind: brain,ball: heldBall,hoop: rim,tactic: playTactic,pool}){
+var cs=new WeakSet;function Ic(e,t,n,i,o){let r=t.velocity;if(ie(t,{x:i.x+r.x*o,z:i.z+r.z*o}))return!0;let{kind:s,target:l,pace:c}=n.intent;if(e.team.difficulty!=="legend"||s!=="drive"||!l)return!1;let f=z(t,l),m=$(t,l),p=t.ability.moveSpeed*Math.min(1,c)*Math.min(1,f/(a.bodyRadius*2)),u=n.react*pt,x=-u*Math.expm1(-o/u),h=o-x;return ie(t,{x:i.x+r.x*x+m.x*p*h,z:i.z+r.z*x+m.z*p*h})}function betterThanCatchThree(game,actor,pool,rim,range,space,deadline){
+ // A static gap can close before the carrier gets to the layup gather.
+ const finish=Ge(rim,actor,(a.layupRange-a.bodyRadius)/range);
+ const speed=Math.max(actor.ability.moveSpeed,Math.hypot(actor.velocity.x,actor.velocity.z));
+ return ke(game,actor,rim)&&ht(game,actor,finish,speed,z(actor,finish)/speed)>=a.bodyRadius*2||
+  Vn(game,actor,pool,rim,space,deadline,false);
+}
+function settleOnThree({g: game,a: actor,mind: brain,ball: heldBall,hoop: rim,tactic: playTactic,pool}){
  const receiving=actor.state==='receive';
  const justPlanted=actor.state==='idle'&&actor.previousState==='receive'&&game.time-actor.caughtAt<=a.catchTime+brain.react;
  if(!receiving&&!justPlanted)return null;
@@ -980,21 +987,43 @@ var cs=new WeakSet;function Ic(e,t,n,i,o){let r=t.velocity;if(ie(t,{x:i.x+r.x*o,
  const delay=wait+brain.react,deadline=Math.min(game.shotClock,game.team.remaining),shotRelease=Re().ideal;
  const release=delay+shotRelease,space=z(actor,Z(game,actor));
  if(receiving&&wait<=0||deadline<=Math.max(A.shotUrgency,release)||range>a.normalRange||ie(actor,feet)||
-  !Ic(game,actor,brain,feet,delay)||space<a.contestRange||
-  tt(game,actor,rim,release))return null;
- if(justPlanted){
-  const toward=$(actor,rim);
-  if(!squareForPullUp(actor,toward,shotRelease)||pullUpThreat(game,actor,toward,shotRelease,true))return null;
-  // A static gap can close before the carrier gets to the layup gather.
-  const finish=Ge(rim,actor,(a.layupRange-a.bodyRadius)/range);
-  const speed=Math.max(actor.ability.moveSpeed,Math.hypot(actor.velocity.x,actor.velocity.z));
-  if(ke(game,actor,rim)&&ht(game,actor,finish,speed,z(actor,finish)/speed)>=a.bodyRadius*2||
-   Vn(game,actor,pool,rim,space,deadline,false))return null;
-  return P('shoot',actor,0,{key:'jump'});
+  !Ic(game,actor,brain,feet,delay)||space<a.contestRange)return null;
+ const guard=tt(game,actor,rim,release);
+ if(receiving&&!guard)return P('receive',actor,0);
+ if(!receiving&&guard)return null;
+ if(receiving){
+  const reception=game.assistPlay;
+  if(reception?.receiver!==actor.id||reception.caughtAt!==actor.heldAt||reception.manual||reception.handoff)return null;
  }
- // Preserve the shot at the catch point when the default drive would step over the arc.
- return P('receive',actor,0);
+ const toward=$(actor,rim),time=receiving?wait+setShotTime(actor,toward):shotRelease;
+ if(receiving&&tt(game,actor,rim,time)||!squareForPullUp(actor,toward,time)||pullUpThreat(game,actor,toward,time,true))return null;
+ if(betterThanCatchThree(game,actor,pool,rim,range,space,deadline))return null;
+ // Keep the catch animation. Check the fast release again when the feet plant.
+ if(receiving)return {...P('receive',actor,0),quickThreeHeldAt:actor.heldAt};
+ return P('shoot',actor,0,{key:'jump'});
 }
+function quickThreeAtPlant(game,actor,brain){
+ const heldAt=brain.intent.quickThreeHeldAt;
+ if(heldAt===undefined||actor.state==='receive')return null;
+ delete brain.intent.quickThreeHeldAt;
+ const heldBall=game.ball;
+ if(actor.heldAt!==heldAt||actor.state!=='idle'||actor.previousState!=='receive'||game.time-actor.caughtAt>a.catchTime+brain.react||
+  heldBall.owner!==actor.id||heldBall.state!=='held'||!heldBall.liveReception||heldBall.movingCatch)return null;
+ brain.next=Math.min(brain.next,game.time);
+ const rim=Y(actor),playTactic=nt(game,actor.team);
+ if(!game.courtProgress?.front||game.inbound||game.freeThrows||
+  actor.air||actor.offBalance||actor.passMotion||actor.ultimate||actor.sprinting||actor.cooldown>0||
+  playTactic&&playTactic!=='balanced'||st(game,actor.team)||game.offBallScreen?.owner===actor.id||
+  game.teamScreen?.owner===actor.id&&game.teamScreen.request||
+  actor.stamina<a.staminaCosts.shoot/(actor.ability.staminaEfficiency??1))return null;
+ const toward=$(actor,rim),time=setShotTime(actor,toward),deadline=Math.min(game.shotClock,game.team.remaining),range=z(actor,rim);
+ if(deadline<=A.shotUrgency||time>=deadline||range>a.normalRange||ie(actor,actor.courtFooting??actor)||
+  !squareForPullUp(actor,toward,time)||tt(game,actor,rim,time)||pullUpThreat(game,actor,toward,time,true))return null;
+ const space=z(actor,Z(game,actor)),pool=V(game).filter(p=>p!==actor&&p.team===actor.team);
+ if(betterThanCatchThree(game,actor,pool,rim,range,space,deadline))return null;
+ return P('quick-shot',actor,0,{key:'shot-press'});
+}
+
 function Oc(g,actor,mind){
  const ball=g.ball,delay=mind.next-g.time,held=g.time-actor.heldAt;
  if(g.team.format!=='5v5'||g.teamExercise||g.inbound||g.freeThrows||g.mustClear||!g.courtProgress?.front||
@@ -1157,7 +1186,7 @@ function resetBlockLandingSteer(mind,ball){
  mind.look={x:ball.x,z:ball.z};
  mind.steer.x=0;mind.steer.z=0;
 }
-function Ls(e,t){let n=t.teamBrain,i=e.teamExercise;if(i?.kind==="offball-read"){let h=t.id===i.setter||t.id===i.cutter||i.variant==="switch"&&(t.id===i.marker||t.id===i.partner),y=t.team!==0&&(i.stage!=="read"||e.players[0].passMotion);if(!h||y||i.stage==="retry")return n.intent=Fe,Fe}if(i?.kind==="trap-escape"&&(i.stage==="start"||["trap","pass"].includes(i.stage)&&![i.primary,i.helper,i.outlet].includes(t.id))||i?.kind==="kick-out"&&i.stage==="start"&&e.ball.owner===i.passer&&t.id===i.stationaryGuard||i?.kind==="screen-roll"&&e.ball.owner===0&&(i.stage==="start"||i.stage==="roll")&&(i.stationaryGuard===t.id||i.stage==="start"&&i.screener===t.id&&e.teamInstruction?.kind!=="screen"))return n.intent=Fe,Fe;if(e.team.format==="5v5"&&!i&&e.ball.state==="held"&&e.ball.owner===t.id&&t.state==="gather"&&t.air&&t.shot?.jumping&&!t.shot.finishing&&!t.ultimate)return n.intent=Vi,Vi;let o=n.intent.kind==="reach-shot"&&e.ball.owner===t.id&&z(t,Y(t))<=a.normalRange,r=Oc(e,t,n);if(r)return n.intent=r,r;let s=Uc(e,t);if(s)return n.intent=s,s; const landingBlock=blockLandingCanPursue(e,t,n);
+function Ls(e,t){let n=t.teamBrain,i=e.teamExercise;if(i?.kind==="offball-read"){let h=t.id===i.setter||t.id===i.cutter||i.variant==="switch"&&(t.id===i.marker||t.id===i.partner),y=t.team!==0&&(i.stage!=="read"||e.players[0].passMotion);if(!h||y||i.stage==="retry")return n.intent=Fe,Fe}if(i?.kind==="trap-escape"&&(i.stage==="start"||["trap","pass"].includes(i.stage)&&![i.primary,i.helper,i.outlet].includes(t.id))||i?.kind==="kick-out"&&i.stage==="start"&&e.ball.owner===i.passer&&t.id===i.stationaryGuard||i?.kind==="screen-roll"&&e.ball.owner===0&&(i.stage==="start"||i.stage==="roll")&&(i.stationaryGuard===t.id||i.stage==="start"&&i.screener===t.id&&e.teamInstruction?.kind!=="screen"))return n.intent=Fe,Fe;if(e.team.format==="5v5"&&!i&&e.ball.state==="held"&&e.ball.owner===t.id&&t.state==="gather"&&t.air&&t.shot?.jumping&&!t.shot.finishing&&!t.ultimate)return n.intent=Vi,Vi;let o=n.intent.kind==="reach-shot"&&e.ball.owner===t.id&&z(t,Y(t))<=a.normalRange,r=quickThreeAtPlant(e,t,n)??Oc(e,t,n);if(r)return n.intent=r,r;let s=Uc(e,t);if(s)return n.intent=s,s; const landingBlock=blockLandingCanPursue(e,t,n);
  if(e.time<n.next&&!o){
   // The pass windup cues t runner to stop before t short chest pass.
   const running=n.intent.kind==='break-rim'||n.intent.kind==='break-wing';
