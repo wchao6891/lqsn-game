@@ -913,16 +913,20 @@ function saveDeflectedShot({g,a,ball,pool},hoop){
  const rate={x:ball.vx*BALL.friction,z:ball.vz*BALL.friction};
  const pointAt=time=>({x:pickup.x+rate.x*(time-R.pickupDelay),z:pickup.z+rate.z*(time-R.pickupDelay)});
  // A following bounce has both a shorter flight and less horizontal speed.
- if(!outsideCourt(pointAt(span*(1+BALL.bounce*BALL.friction)),0,bounds))return null;
+ const escapes=outsideCourt(pointAt(span*(1+BALL.bounce*BALL.friction)),0,bounds);
+ if(!escapes&&(g.team.difficulty!=='legend'||lastTouch?.team===shooter?.team||ball.kind!=='normal'||ball.ultimate||ball.boardTouched||
+  outsideCourt(pickup,R.contestRange+R.bodyRadius,bounds)))return null;
  let window=span;
- if(secondChance){
+ if(escapes&&secondChance){
   // The first bounce may cross a line before it returns to the floor.
   const inset=COURT.lineWidth/2;
   const exitX=rate.x?((rate.x<0?bounds.minX+inset:bounds.maxX-inset)-pickup.x)/rate.x:Infinity;
   const exitZ=rate.z?((rate.z<0?bounds.minZ+inset:bounds.maxZ-inset)-pickup.z)/rate.z:Infinity;
   window=Math.min(span,R.pickupDelay+exitX,R.pickupDelay+exitZ);
  }
- for(const time of [(window+R.pickupDelay)/2,window]){
+ // A deflection that stays in play can be contested at its first legal pickup.
+ const samples=escapes?[(window+R.pickupDelay)/2,window]:[R.pickupDelay];
+ for(const time of samples){
   const deadline=fall+time,point=pointAt(time);
   if(deadline>=Math.min(g.shotClock,g.team.remaining)||outsideCourt(point,0,bounds))continue;
   const height=BALL.radius+(bounceSpeed-BALL.gravity*time/2)*time;
