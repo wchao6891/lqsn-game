@@ -955,7 +955,32 @@ function Uc(g,carrier){
  return receiver?He(receiver,reaching?'reach-outlet':'pressure-outlet'):null;
 }
 
-var Hc=[({g:e,a:t})=>_r(e,t),Ll,Nl,kc,Mc,Sc,Fs,Tc,hs,Zi,$i,Bs,vc,Dc];function blockLandingCanPursue(g,a,mind){
+var Hc=[({g:e,a:t})=>_r(e,t),Ll,Nl,kc,Mc,Sc,Fs,Tc,hs,Zi,$i,Bs,vc,Dc];const defenseHandoffAliases={R:a,AI:A,attackHoop:Y,aim:$,gap:z,basketSide:we,openPassLane:K,plan:P,closeoutSpot:Fn,steerResponse:pt,containPace:Kt};
+function followHandoffFootwork(g,a,mind){
+ const {R,AI,attackHoop,aim,gap,basketSide,openPassLane,plan,closeoutSpot,steerResponse,containPace}=defenseHandoffAliases;
+ const plant=mind.intent;
+ if(plant.kind!=='contain'||plant.pace!==0||plant.helpFor===undefined||
+  a.state!=='idle'||a.air||a.offBalance||a.ultimate||!a.guard)return null;
+ const ball=g.ball,defense=g.teamDefense,transition=g.courtProgress?.transition;
+ if(g.team.format!=='5v5'||g.teamExercise||g.inbound||!g.courtProgress?.front||
+  !transition||g.time>=transition.until||defense?.primary!==a||defense.trap||defense.scheme||
+  ball.state!=='held'||plant.helpFor!==ball.owner)return null;
+ const owner=g.players[ball.owner],screen=g.teamScreen;
+ if(owner.state!=='crossover'||owner.air||owner.ultimate||owner.offBalance||plant.helpHeldAt!==owner.heldAt||
+  screen?.owner===owner.id&&screen.phase!=='expired'||!basketSide(a,owner))return null;
+ // The low defender's old plant covered the rim. Once on the ball, start
+ // moving before that stance is beaten without adding another reach read.
+ const read=Math.min(AI.leadTime,mind.next-g.time+mind.react*steerResponse);
+ const hoop=attackHoop(owner),toward=aim(owner,hoop),{x:vx,z:vz}=owner.velocity;
+ if((vx*toward.x+vz*toward.z)*read<R.bodyRadius)return null;
+ const future={x:owner.x+vx*read,z:owner.z+vz*read,hoop};
+ if(basketSide(a,future))return null;
+ const target=closeoutSpot(g,owner,future);
+ if(gap(a,target)<=R.bodyRadius||!openPassLane(g,a,target,R.bodyRadius*2))return null;
+ mind.look={x:owner.x,z:owner.z};
+ return plan('contain',target,mind.difficulty?.containPace??containPace);
+}
+function blockLandingCanPursue(g,a,mind){
  const ball=g.ball;
  if(ball.state!=='loose'||ball.blockedBy!==a.id||g.team.format!=='5v5'||g.teamExercise||ball.shootingFoul||
   a.state!=='idle'||a.age!==0||a.previousState!=='block'||a.air||a.offBalance||mind.intent.kind!=='recover-shape')return false;
@@ -989,7 +1014,7 @@ function Ls(e,t){let n=t.teamBrain,i=e.teamExercise;if(i?.kind==="offball-read")
     return recovery;
    }
   }
-let y=(n.intent.kind==="contain"||n.intent.kind==="help-lane")&&Cs(e,t,e.players[e.ball.owner],e.teamDefense);if(y)return n.intent=y,y;if(n.intent.kind==="track-mark"&&e.ball.state==="held"){let b=ws(e,t,e.players[e.ball.owner],n.intent.target);if(b)return b}return{...n.intent,action:null}}n.next=Kn(e.time,n.random(),n.difficulty,n.react),zc(e,t,n),Rc(e,t,n);let l={...e.ball},c=e.players[l.owner],f=Y(t);n.look={x:l.x,z:l.z};let m=e.teamDefense,p=e.courtProgress?.transition?.rim?.player!==t.id&&m?.primary===t&&m.rimTransfer?.id===t.id?m.rimTransfer:null;p&&delete m.rimTransfer;let u={g:e,a:t,mind:n,owner:c,hoop:f,ball:l,rimTransfer:p,anchor:En(e,t),pool:V(e).filter(h=>h!==t&&h.team===t.team),tactic:nt(e,t.team)},x=`${l.state}:${l.owner??l.receiver??""}`;n.seen!==x&&(n.commitUntil=0,n.outlet=null,n.seen=x);for(let h of Hc){let y=h(u);if(y){  if(landingBlock&&h===Dc&&y.kind==='loose-ball')resetBlockLandingSteer(n,l);n.intent=h===Zi&&(Ec(u,y)??swingBeforeBlockedDrive(u,y))||y;if(h===Zi&&n.intent.kind==="drive"&&!n.intent.action&&!C(t)){const settling=settleOnThree(u);if(settling)n.intent=settling;else if(xe[t.character].kind==="dream")n.intent=nc(u)??n.intent;}return n.intent}}return Fe}function jc(e,t,n,i,o,r){let s=e.teamBrain,l=s.landing;if(!l||e.air||o>=l.until)return null;let c=o-l.seenAt,f=Math.max(r,Math.min(s.react,l.until-o)),m=l.x+l.vx*c,p=l.z+l.vz*c,u=l.vx*f,x=l.vz*f,h=u*u+x*x,y=h?Math.max(0,Math.min(1,((e.x-m)*u+(e.z-p)*x)/h)):0,b={x:m+u*y,z:p+x*y},v=z(e,b),d=$(e,b),R=n.x*d.x+n.z*d.z;if(R<=0)return null;let k=v-Qi,M=e.ability.moveSpeed;if(k>=R*M*(i?a.sprintMultiplier:1)*f)return null;let S=Math.hypot(n.x,n.z),B=Math.max(-S,Math.min(R,k/(M*f))),F=n.x*-d.z+n.z*d.x,O=(t.x-b.x)*d.x+(t.z-b.z)*d.z>0;O&&!s.landingSide&&(s.landingSide=Math.sign(F)||(s.motionPhase<.5?-1:1));let E=O?s.landingSide*Math.sqrt(Math.max(0,S*S-B*B)):F;return{x:d.x*B-d.z*E,z:d.z*B+d.x*E,footwork:O?"sidestep":"short-step"}}function Lc(e,t,n){if(e?.ball.state!=="pass"||e.team.format!=="5v5"||e.teamExercise||e.inbound||t.state!=="idle"||t.air||t.offBalance||!["track-mark","deny-outlet","contain"].includes(n.kind))return!1;let i=e.ball,o=e.teamDefense;if(i.style!=="direct"||i.inbound||i.restartProtected||o?.scheme||o?.trap)return!1;let r=vt(e),s=o?.coverage.get(t.id);if(!r||r.team===t.team||!s||s===r||z(t,s)<=a.contestRange)return!1;let l=t.teamBrain,c=Math.min(A.leadTime+l.react/2,i.duration-i.age);return ha(i,t,c,l.lanePlant===i)}function Nc(g,e,t,n,i,around){let o=z(e,t),r=$(e,t),s=n.x*r.x+n.z*r.z;if(s<=0)return n;
+let y=(n.intent.kind==="contain"||n.intent.kind==="help-lane")&&Cs(e,t,e.players[e.ball.owner],e.teamDefense);if(y)return n.intent=y,y;const handoff=followHandoffFootwork(e,t,n);if(handoff)return n.intent=handoff,handoff;if(n.intent.kind==="track-mark"&&e.ball.state==="held"){let b=ws(e,t,e.players[e.ball.owner],n.intent.target);if(b)return b}return{...n.intent,action:null}}n.next=Kn(e.time,n.random(),n.difficulty,n.react),zc(e,t,n),Rc(e,t,n);let l={...e.ball},c=e.players[l.owner],f=Y(t);n.look={x:l.x,z:l.z};let m=e.teamDefense,p=e.courtProgress?.transition?.rim?.player!==t.id&&m?.primary===t&&m.rimTransfer?.id===t.id?m.rimTransfer:null;p&&delete m.rimTransfer;let u={g:e,a:t,mind:n,owner:c,hoop:f,ball:l,rimTransfer:p,anchor:En(e,t),pool:V(e).filter(h=>h!==t&&h.team===t.team),tactic:nt(e,t.team)},x=`${l.state}:${l.owner??l.receiver??""}`;n.seen!==x&&(n.commitUntil=0,n.outlet=null,n.seen=x);for(let h of Hc){let y=h(u);if(y){  if(landingBlock&&h===Dc&&y.kind==='loose-ball')resetBlockLandingSteer(n,l);n.intent=h===Zi&&(Ec(u,y)??swingBeforeBlockedDrive(u,y))||y;if(h===Zi&&n.intent.kind==="drive"&&!n.intent.action&&!C(t)){const settling=settleOnThree(u);if(settling)n.intent=settling;else if(xe[t.character].kind==="dream")n.intent=nc(u)??n.intent;}return n.intent}}return Fe}function jc(e,t,n,i,o,r){let s=e.teamBrain,l=s.landing;if(!l||e.air||o>=l.until)return null;let c=o-l.seenAt,f=Math.max(r,Math.min(s.react,l.until-o)),m=l.x+l.vx*c,p=l.z+l.vz*c,u=l.vx*f,x=l.vz*f,h=u*u+x*x,y=h?Math.max(0,Math.min(1,((e.x-m)*u+(e.z-p)*x)/h)):0,b={x:m+u*y,z:p+x*y},v=z(e,b),d=$(e,b),R=n.x*d.x+n.z*d.z;if(R<=0)return null;let k=v-Qi,M=e.ability.moveSpeed;if(k>=R*M*(i?a.sprintMultiplier:1)*f)return null;let S=Math.hypot(n.x,n.z),B=Math.max(-S,Math.min(R,k/(M*f))),F=n.x*-d.z+n.z*d.x,O=(t.x-b.x)*d.x+(t.z-b.z)*d.z>0;O&&!s.landingSide&&(s.landingSide=Math.sign(F)||(s.motionPhase<.5?-1:1));let E=O?s.landingSide*Math.sqrt(Math.max(0,S*S-B*B)):F;return{x:d.x*B-d.z*E,z:d.z*B+d.x*E,footwork:O?"sidestep":"short-step"}}function Lc(e,t,n){if(e?.ball.state!=="pass"||e.team.format!=="5v5"||e.teamExercise||e.inbound||t.state!=="idle"||t.air||t.offBalance||!["track-mark","deny-outlet","contain"].includes(n.kind))return!1;let i=e.ball,o=e.teamDefense;if(i.style!=="direct"||i.inbound||i.restartProtected||o?.scheme||o?.trap)return!1;let r=vt(e),s=o?.coverage.get(t.id);if(!r||r.team===t.team||!s||s===r||z(t,s)<=a.contestRange)return!1;let l=t.teamBrain,c=Math.min(A.leadTime+l.react/2,i.duration-i.age);return ha(i,t,c,l.lanePlant===i)}function Nc(g,e,t,n,i,around){let o=z(e,t),r=$(e,t),s=n.x*r.x+n.z*r.z;if(s<=0)return n;
 if(o>A.reachRange){
  const defense=g.teamDefense,screen=g.teamScreen;
  if(g.team.format!=='5v5'||g.teamExercise||g.inbound||!g.courtProgress?.front||around||
