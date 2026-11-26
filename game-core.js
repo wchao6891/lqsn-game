@@ -828,15 +828,18 @@ function activeStealAtBall(g,player,defender,release){
   reachHandNearBall(g,defender);
 }
 function jumpAsRunningCatchSettles(context,range,space,deadline,instruction){
- const {g:game,a:actor,hoop,tactic}=context;
+ const {g:game,a:actor,mind,hoop,pool,tactic}=context;
  const ball=game.ball,screen=game.teamScreen;
  if(game.team.format!=='5v5'||game.team.difficulty!=='legend'||game.teamExercise||game.inbound||!game.courtProgress?.front||
   !ball.liveReception||!ball.movingCatch||ball.movingCatch.handoff||ball.screenRoll||ball.screenPop||ball.offBallSlip||ball.backdoor||
   ball.offBall||ball.driveKick||
   tactic&&tactic!=='balanced'||instruction||game.offBallScreen?.owner===actor.id||screen?.owner===actor.id&&screen.phase!=='expired'||
-  actor.state!=='idle'||actor.previousState!=='receive'||actor.age!==0||actor.air||actor.offBalance||actor.passMotion||actor.shot||actor.ultimate||actor.cooldown>0||
+  actor.state!=='idle'||actor.previousState!=='receive'||actor.air||actor.offBalance||actor.passMotion||actor.shot||actor.ultimate||actor.cooldown>0||
   range<=a.layupRange||range>a.normalRange||space<A.reachRange+a.bodyRadius||deadline<=A.shotUrgency||
   actor.stamina<(a.staminaCosts.jump+a.staminaCosts.shoot)/(actor.ability.staminaEfficiency??1))return null;
+ const afterPlant=actor.age!==0,defense=game.teamDefense;
+ if(afterPlant&&(mind.intent.kind!=='drive-rim'||game.time-actor.caughtAt>a.catchTime+mind.react*2||
+  actor.sprinting||space<a.contestRange||defense?.owner===actor.id&&defense.trap))return null;
  const release=Re().ideal,toward=$(actor,hoop);
  if(Qe-game.laneSeconds[actor.id]<=release||actor.face.x*toward.x+actor.face.z*toward.z<a.defensiveCone||
   !squareForPullUp(actor,toward,release)||tt(game,actor,hoop,release))return null;
@@ -849,6 +852,7 @@ function jumpAsRunningCatchSettles(context,range,space,deadline,instruction){
   if(d.team===actor.team||d.offBalance)return false;
   return defenderRoomAtPoint(d,actor,0,release)<A.reachRange||activeStealAtBall(game,actor,d,release);
  }))return null;
+ if(afterPlant&&(pullUpThreat(game,actor,toward,release,true)||Vn(game,actor,pool,hoop,space,deadline,false)))return null;
  return P('shoot',actor,0,{key:'jump'});
 }
 function swingBeforeBlockedDrive({g,a:actor,mind,hoop,pool,tactic},decision){
