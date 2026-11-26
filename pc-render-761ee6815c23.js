@@ -1,0 +1,242 @@
+// Flow-first desktop profile: native CSS pixels, at most a Full HD drawing
+// buffer. UI text is DOM, so this budget only affects the 3D canvas.
+const softwareLevel=2;
+export const RENDER_QUALITY=Object.freeze({maxPixelRatio:1,pixelBudget:1920*1080,maxFps:60,maxStepSeconds:.035,
+ softwareLevel,desktopSoftwareLevel:softwareLevel+1});
+// Lower budgets keep the CSS viewport and input coordinates intact.
+const pixelBudgets=[RENDER_QUALITY.pixelBudget,960*600,640*400,536*335,448*280];
+// A GPU-rendered PC match retains a 720p-equivalent buffer, bounded by the
+// actual viewport. This keeps player silhouettes and court markings readable.
+const desktopPixelBudgets=[RENDER_QUALITY.pixelBudget,1600*900,1280*720];
+const softwareBudget=pixelBudgets[softwareLevel];
+// Subdivide the first steps around the software starting tier. The midpoint
+// above it missed the frame target in play, so use the smaller quarter step.
+const softwarePixelBudgets=[
+ ...pixelBudgets.slice(0,softwareLevel),
+ Math.sqrt(softwareBudget*Math.sqrt(softwareBudget*pixelBudgets[softwareLevel-1])),
+ softwareBudget,
+ Math.sqrt(softwareBudget*pixelBudgets[softwareLevel+1]),
+ ...pixelBudgets.slice(softwareLevel+1)
+];
+function renderBudgets(desktop,software){
+ return desktop?desktopPixelBudgets:software?softwarePixelBudgets:pixelBudgets;
+}
+export function renderPixelRatio(width,height,dpr,level=0,desktop=false,software=false){
+ const budgets=renderBudgets(desktop,software);
+ // Hardware-rendered PCs can use the display's physical pixels within the
+ // same budget. A CSS pixel can be larger than a display pixel on Windows.
+ const density=desktop?dpr:Math.min(dpr,RENDER_QUALITY.maxPixelRatio);
+ return Math.min(density,Math.sqrt(budgets[level]/(width*height)));
+}
+
+// Reuse the lowest arena budget for both split tiers. The second split tier
+// keeps the first split tier's native budget for the foreground.
+const foregroundPixelBudget=760*427;
+export function softwareCourtRaster(width,height,dpr,level){
+ const splitLevel=RENDER_QUALITY.desktopSoftwareLevel+1;
+ const lowSplit=level===splitLevel+1;
+ if(level!==splitLevel&&!lowSplit)return null;
+ const foregroundBudget=lowSplit?softwarePixelBudgets[splitLevel]:foregroundPixelBudget;
+ const nativeRatio=renderPixelRatio(width,height,dpr,level,false,true);
+ const density=Math.min(dpr,RENDER_QUALITY.maxPixelRatio);
+ const foregroundRatio=Math.sqrt(foregroundBudget/(width*height));
+ const foreground=Math.min(density,foregroundRatio);
+ // Only split here if the viewport has enough pixels for the full foreground budget.
+ if(foreground<=nativeRatio||lowSplit&&density<=foregroundRatio)return null;
+ const arena=renderPixelRatio(width,height,dpr,softwarePixelBudgets.length-1,false,true);
+ return {foreground,arena,native:nativeRatio};
+}
+
+// Inactive scenes draw once when invalidated, then release the animation loop.
+// Resuming starts a new clock; time spent in another tab never advances play.
+export function createRenderLoop({step,draw,isActive,isHidden,initialQuality=0,desktop=false,software=false,onQualityChange,softwareActorDetail,softwareCourtSplit,request=requestAnimationFrame,cancel=cancelAnimationFrame}){
+ let pending=0,last=null,lastRefresh=null,next=0,quality=initialQuality;
+ let slow=0,fast=0,fastFrames=0,upgradedAt=-Infinity,retryAt=0;
+ let paceTime=0,paceFrames=0,longestInterval=0,paceProbe=null;
+ let softwareCadence=null,slowSamples=0;
+ let lowestRecheckAvailable=true,intermediateRecheckAvailable=true;
+ let currentSoftwareDetail=null,detailRecheckPending=false;
+ let steadyRecheckSeconds=0,earlyRecheckLevel=null,baseSteadySeconds=0;
+ const interval=1000/RENDER_QUALITY.maxFps;
+ const stepLimit=RENDER_QUALITY.maxStepSeconds;
+ const recoverySeconds=8,retrySeconds=30;
+ const minimumDrawRate=50,paceWindow=1,maxPaceInterval=2/RENDER_QUALITY.maxFps;
+ const measureActualCadence=desktop||software;
+ const budgets=renderBudgets(desktop,software),lowestQuality=budgets.length-1;
+ function wake(){if(!pending&&!isHidden())pending=request(frame);}
+ function resetPace(){paceTime=paceFrames=longestInterval=0;}
+ function changeQuality(level){
+  if(level!==initialQuality+1)detailRecheckPending=false;
+  quality=level;if(!measureActualCadence)slow=0;
+  fast=fastFrames=slowSamples=steadyRecheckSeconds=baseSteadySeconds=0;earlyRecheckLevel=null;
+  resetPace();onQualityChange?.(quality);
+ }
+ function resetClock(){
+  last=lastRefresh=null;next=0;slow=fast=fastFrames=slowSamples=steadyRecheckSeconds=baseSteadySeconds=0;resetPace();
+  if(paceProbe){
+   if(software&&!paceProbe.sharper)softwareCadence=paceProbe.rate;
+   const measuredLevel=paceProbe.level;paceProbe=null;
+   if(measuredLevel!==quality)changeQuality(measuredLevel);
+  }
+ }
+ function suspend(){if(pending)cancel(pending);pending=0;resetClock();}
+ function samplePace(elapsed){
+  paceTime+=measureActualCadence?elapsed:Math.min(elapsed,maxPaceInterval);paceFrames++;
+  if(measureActualCadence)longestInterval=Math.max(longestInterval,elapsed);
+  if(paceTime<paceWindow||measureActualCadence&&paceFrames<3)return null;
+  // Ignore one isolated stall without making sustained 12 and 20 FPS both
+  // look like 30 FPS. A lower PC tier must earn its loss of clarity.
+  const seconds=paceTime-longestInterval,frames=paceFrames-Number(measureActualCadence);
+  // One isolated stall need not trigger a probe. For software tiers, count
+  // every frame when deciding whether the new resolution is worth keeping.
+  const short=frames<Math.floor(seconds*minimumDrawRate);
+  // A single-buffer tier needs pixel headroom. The split tier spends most
+  // extra pixels on the foreground, so check its actual cadence once.
+  const tryIntermediate=software&&intermediateRecheckAvailable&&quality>RENDER_QUALITY.desktopSoftwareLevel+1&&quality<lowestQuality&&
+   (softwareCourtSplit?.(quality-1)||frames>=Math.floor(seconds*minimumDrawRate*budgets[quality-1]/budgets[quality]));
+  const sample={rate:software?paceFrames/paceTime:frames/seconds,short,
+   onTarget:software?paceFrames>=Math.floor(paceTime*minimumDrawRate):!short,seconds:software?paceTime:seconds,tryIntermediate};
+  resetPace();return sample;
+ }
+ function adjustQuality(elapsed,time){
+  // Count sustained render pressure. A shader compile, resize or single
+  // long frame contributes at most one tenth of a second.
+  if(elapsed>stepLimit){slow+=Math.min(.1,elapsed);fast=fastFrames=0;}
+  else{
+   slow=Math.max(0,slow-elapsed);
+   if(quality&&time>=retryAt){fast+=elapsed;fastFrames++;}
+  }
+  const pace=samplePace(elapsed);
+  const detail=pace&&software?softwareActorDetail?.()??null:currentSoftwareDetail;
+  const detailChanged=detail!==currentSoftwareDetail;
+  if(detailChanged){
+   if(detailRecheckPending)steadyRecheckSeconds=0;
+   currentSoftwareDetail=detail;
+   detailRecheckPending=Boolean(detail)&&quality===initialQuality+1;
+  }
+  if(pace&&paceProbe){
+   if(paceProbe.sharper){
+    const slower=!pace.onTarget&&(paceProbe.rate-pace.rate)*pace.seconds>=1;
+    if(!slower||!paceProbe.early)retryAt=time+1000*(slower?retrySeconds:recoverySeconds);
+    const previousLevel=paceProbe.level;paceProbe=null;
+    if(slower)changeQuality(previousLevel);
+    else{
+     softwareCadence=pace.rate;
+     upgradedAt=time;
+    }
+    return;
+   }
+   const faster=(pace.rate-paceProbe.rate)*pace.seconds>=1;
+   if(software&&faster&&quality===lowestQuality&&paceProbe.level===quality-1&&softwareCadence>=minimumDrawRate){
+    // A higher resolution recently kept up. The load might have eased at
+    // the same time as this downgrade, so confirm once before staying here.
+    softwareCadence=pace.rate;
+    lowestRecheckAvailable=false;
+    paceProbe={level:quality,rate:pace.rate,sharper:true};
+    retryAt=time+1000*retrySeconds;
+    changeQuality(quality-1);
+    return;
+   }
+   if(pace.onTarget&&(!software||faster)){
+    // The previous tier already failed at this load. Give the successful
+    // budget the same time to settle as after an unsuccessful probe.
+    if(software){
+     if(paceProbe.fromStable&&paceProbe.level===quality-1)earlyRecheckLevel=quality;
+     softwareCadence=pace.rate;
+    }
+    paceProbe=null;
+    retryAt=time+1000*retrySeconds;
+   }else{
+    // Two budgets can miss the same display refreshes even when a lower
+    // budget can keep up. When the search ends, keep the clearest useful tier.
+    if(faster)paceProbe={level:quality,rate:pace.rate};
+    if(quality<lowestQuality){changeQuality(quality+1);return;}
+    if(software)softwareCadence=paceProbe.rate;
+    const bestLevel=paceProbe.level;paceProbe=null;
+    if(measureActualCadence||bestLevel!==quality)retryAt=time+1000*retrySeconds;
+    if(bestLevel!==quality)changeQuality(bestLevel);
+    return;
+   }
+  }
+  if(pace&&software){
+   // The starting tier may run smoothly before any trial sets its cadence.
+   // Retain that evidence through a slowdown until the resolution changes.
+   if(quality===RENDER_QUALITY.desktopSoftwareLevel&&baseSteadySeconds<recoverySeconds){
+    baseSteadySeconds=pace.onTarget?baseSteadySeconds+pace.seconds:0;
+   }
+   const slowing=pace.short&&softwareCadence!==null&&(softwareCadence-pace.rate)*pace.seconds>=1;
+   slowSamples=slowing?slowSamples+1:0;
+   // New sustained load can merit a lower tier during the cooldown for
+   // trying sharper frames. Use cadence at the restored tier after a probe.
+   if(slowSamples>=2&&quality<lowestQuality){
+    const fromStable=baseSteadySeconds>=recoverySeconds||softwareCadence>=minimumDrawRate&&time-upgradedAt>=recoverySeconds*1000;
+    paceProbe={level:quality,rate:pace.rate,fromStable};
+    changeQuality(quality+1);return;
+   }
+   // Recheck a known adjacent tier or a deep opening drop after a steady run.
+   // A lower opening tier may have been measured before the distant actors
+   // could use their lighter meshes. Confirm the adjacent tier once they can.
+   const recheckWithDetail=!detailChanged&&detailRecheckPending&&quality===initialQuality+1;
+   const eligible=earlyRecheckLevel===quality||quality===lowestQuality&&lowestRecheckAvailable||pace.tryIntermediate||recheckWithDetail;
+   steadyRecheckSeconds=eligible&&pace.onTarget?steadyRecheckSeconds+pace.seconds:0;
+   const early=eligible&&time<retryAt&&steadyRecheckSeconds>=recoverySeconds;
+   if(early||quality>RENDER_QUALITY.desktopSoftwareLevel&&time>=retryAt){
+    if(quality===lowestQuality)lowestRecheckAvailable=false;
+    if(pace.tryIntermediate)intermediateRecheckAvailable=false;
+    paceProbe={level:quality,rate:pace.rate,sharper:true,early};
+    // A pause can interrupt the trial without bypassing its retry delay.
+    if(!early)retryAt=time+1000*retrySeconds;
+    changeQuality(quality-1);return;
+   }
+  }
+  const shouldProbe=pace?.short&&time>=retryAt;
+  if((!measureActualCadence&&slow>=.45||shouldProbe)&&quality<lowestQuality){
+   // A tier that failed shortly after an upgrade should not be retried
+   // every few seconds on a device that sits between two budgets.
+   if(time-upgradedAt<1000*recoverySeconds)retryAt=time+1000*retrySeconds;
+   if(measureActualCadence||slow<.45){
+    const fromStable=software&&(baseSteadySeconds>=recoverySeconds||quality===RENDER_QUALITY.desktopSoftwareLevel-1&&
+     softwareCadence>=minimumDrawRate&&time-upgradedAt>=recoverySeconds*1000);
+    paceProbe={level:quality,rate:pace.rate,fromStable};
+   }
+   changeQuality(quality+1);
+  }else if(fast>=recoverySeconds){
+   // A 60 FPS limit on a faster, mismatched display has uneven intervals.
+   const rate=fastFrames/fast;
+   if(rate>=minimumDrawRate){
+    if(software){paceProbe={level:quality,rate,sharper:true};retryAt=time+1000*retrySeconds;}
+    else{paceProbe=null;softwareCadence=null;upgradedAt=time;}
+    changeQuality(quality-1);
+   }
+   fast=fastFrames=0;
+  }
+ }
+ function frame(time){
+  pending=0;
+  if(isHidden()){resetClock();return;}
+  if(!isActive()){resetClock();draw();return;}
+  // Use the closer display refresh and keep the overall 60 Hz schedule.
+  // A slightly early timestamp should not cost a full refresh.
+  const lead=lastRefresh===null?0:Math.min(interval,time-lastRefresh)/2;
+  lastRefresh=time;
+  if(time+lead<next){wake();return;}
+  const elapsed=last===null?0:Math.max(0,(time-last)/1000);last=time;
+  next=next?next+(Math.floor(Math.max(0,time-next)/interval)+1)*interval:time+interval;
+  if(elapsed>0){
+   adjustQuality(elapsed,time);
+   const needed=Math.ceil(elapsed/stepLimit);
+   // A desktop frame that fits in four safe steps can keep the whole input
+   // interval. Cap isolated stalls outside that range and draw only once.
+   const extraSteps=software||(desktop?needed<=4||slow>=.45:quality>0);
+   const steps=Math.min(extraSteps?4:2,needed),dt=Math.min(stepLimit,elapsed/steps);
+   // Time beyond the safe budget must not run down the clock while play is frozen.
+   // Align the simulated portion with recent input when a stall exceeds the budget.
+   for(let i=0;i<steps&&isActive();i++)step(dt,dt,time-(steps-i)*dt*1000);
+  }
+  const active=isActive();
+  if(!active)resetClock();
+  draw();
+  if(isActive())wake();else if(active)resetClock();
+ }
+ return{wake,suspend};
+}
