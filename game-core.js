@@ -835,7 +835,9 @@ if(frontReach||sideHand){let G=xe[t.character],ee=frontReach&&G.kind==="steal"&&
 const releaseAliases={BALL:T,R:a,COURT:g,outboundShotLanding:Us,outsideCourt:We,canPickUpAtHeight:Bt,courtSpot:N,groundBallChaser:Xt,plan:P,descendingMissFloor:Es,courtBounds:Me};
 function saveDeflectedShot({g,a,ball,pool},hoop){
  const BALL=releaseAliases.BALL,R=releaseAliases.R,COURT=releaseAliases.COURT,outboundShotLanding=releaseAliases.outboundShotLanding,outsideCourt=releaseAliases.outsideCourt,canPickUpAtHeight=releaseAliases.canPickUpAtHeight,courtSpot=releaseAliases.courtSpot,groundBallChaser=releaseAliases.groundBallChaser,plan=releaseAliases.plan,descendingMissFloor=releaseAliases.descendingMissFloor,courtBounds=releaseAliases.courtBounds;
- if(g.teamExercise||ball.vy>=0||ball.lastTouch===ball.shooter||g.players[ball.lastTouch]?.team!==a.team)return null;
+ const lastTouch=g.players[ball.lastTouch],shooter=g.players[ball.shooter];
+ const secondChance=g.team.difficulty==='legend'&&shooter?.team===a.team&&lastTouch&&lastTouch.team!==a.team;
+ if(g.teamExercise||ball.vy>=0||ball.lastTouch===ball.shooter||!secondChance&&lastTouch?.team!==a.team)return null;
  const landing=outboundShotLanding(g,ball,hoop);
  if(!landing)return null;
  const {fall,pickup,bounds}=landing;
@@ -847,7 +849,15 @@ function saveDeflectedShot({g,a,ball,pool},hoop){
  const pointAt=time=>({x:pickup.x+rate.x*(time-R.pickupDelay),z:pickup.z+rate.z*(time-R.pickupDelay)});
  // A following bounce has both a shorter flight and less horizontal speed.
  if(!outsideCourt(pointAt(span*(1+BALL.bounce*BALL.friction)),0,bounds))return null;
- for(const time of [(span+R.pickupDelay)/2,span]){
+ let window=span;
+ if(secondChance){
+  // The first bounce may cross a line before it returns to the floor.
+  const inset=COURT.lineWidth/2;
+  const exitX=rate.x?((rate.x<0?bounds.minX+inset:bounds.maxX-inset)-pickup.x)/rate.x:Infinity;
+  const exitZ=rate.z?((rate.z<0?bounds.minZ+inset:bounds.maxZ-inset)-pickup.z)/rate.z:Infinity;
+  window=Math.min(span,R.pickupDelay+exitX,R.pickupDelay+exitZ);
+ }
+ for(const time of [(window+R.pickupDelay)/2,window]){
   const deadline=fall+time,point=pointAt(time);
   if(deadline>=Math.min(g.shotClock,g.team.remaining)||outsideCourt(point,0,bounds))continue;
   const height=BALL.radius+(bounceSpeed-BALL.gravity*time/2)*time;
@@ -858,6 +868,7 @@ function saveDeflectedShot({g,a,ball,pool},hoop){
  }
  return null;
 }
+
 function Bc(context,hoop){
  const BALL=releaseAliases.BALL,R=releaseAliases.R,COURT=releaseAliases.COURT,outboundShotLanding=releaseAliases.outboundShotLanding,outsideCourt=releaseAliases.outsideCourt,canPickUpAtHeight=releaseAliases.canPickUpAtHeight,courtSpot=releaseAliases.courtSpot,groundBallChaser=releaseAliases.groundBallChaser,plan=releaseAliases.plan,descendingMissFloor=releaseAliases.descendingMissFloor,courtBounds=releaseAliases.courtBounds;
  const {g,a,ball,pool}=context;
