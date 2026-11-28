@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=54480f6ff7"><link rel="modulepreload" href="./chunk-M52VYLFM.js"><link rel="modulepreload" href="./chunk-LG4YW6ZY.js"><link rel="modulepreload" href="./chunk-FYMEKHUH.js"><link rel="modulepreload" href="./chunk-ZHJHYKN5.js"><link rel="modulepreload" href="./chunk-2K33VVVV.js"><link rel="modulepreload" href="./chunk-OSZ7DOEH.js"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=cfb2818033"><link rel="modulepreload" href="./chunk-TDIBAEXX.js"><link rel="modulepreload" href="./chunk-JSDLCJPM.js"><link rel="modulepreload" href="./chunk-JVQT3HIM.js"><link rel="modulepreload" href="./chunk-GZCJERLO.js"><link rel="modulepreload" href="./chunk-2K33VVVV.js"><link rel="modulepreload" href="./chunk-OSZ7DOEH.js"></head>
 <body>
 <canvas id="court" aria-label="篮球场"></canvas>
 <header id="hud" hidden>
@@ -11,7 +11,7 @@
   <div id="toast" role="status"></div>
   <div id="defense-action" role="status" hidden></div>
   <div id="record-status" hidden></div>
-  <div id="controls" hidden><span class="movement"><kbd>WASD</kbd> 移动</span><span><kbd>左键</kbd><b id="primary-label">投篮</b></span><span><kbd>右键</kbd><b id="fake-label">假投</b></span><span><kbd>Q</kbd><b id="switch-label">换手</b></span><span id="jump-label-control"><kbd>空格</kbd><b id="jump-label">起跳</b></span><span class="movement"><kbd>Shift</kbd>冲刺</span><span id="layup-control"><kbd>E</kbd>上篮</span><span id="dunk-control"><kbd>F</kbd>扣篮</span><span id="team-control" hidden><kbd>Tab</kbd><b id="team-control-label">传球</b></span><span id="team-action-control" hidden><kbd id="team-action-key"></kbd><b id="team-action-label"></b></span><small id="tactic-hint" hidden></small><small id="defense-hint" hidden><b id="defense-label"></b><br>6盯人　7联防　8紧逼</small><small id="hint">朝目标瞄准 · 按住左键，松开投篮</small></div>
+  <div id="controls" data-collapsed="true" hidden><span class="controls-pill-hint"><kbd>H</kbd> 键位说明</span><span class="movement"><kbd>WASD</kbd> 移动</span><span><kbd>左键</kbd><b id="primary-label">投篮</b></span><span><kbd>右键</kbd><b id="fake-label">假投</b></span><span><kbd>Q</kbd><b id="switch-label">换手</b></span><span id="jump-label-control"><kbd>空格</kbd><b id="jump-label">起跳</b></span><span class="movement"><kbd>Shift</kbd>冲刺</span><span id="layup-control"><kbd>E</kbd>上篮</span><span id="dunk-control"><kbd>F</kbd>扣篮</span><span id="team-control" hidden><kbd>Tab</kbd><b id="team-control-label">传球</b></span><span id="team-action-control" hidden><kbd id="team-action-key"></kbd><b id="team-action-label"></b></span><small id="tactic-hint" hidden></small><small id="defense-hint" hidden><b id="defense-label"></b><br>6盯人　7联防　8紧逼</small><small id="hint">朝目标瞄准 · 按住左键，松开投篮</small></div>
  </div>
 </header>
 <div id="player-resources" role="group" aria-label="主控球员状态" hidden>
@@ -20,7 +20,7 @@
  <div id="ultimate-indicator"><img id="my-ultimate-icon" alt=""><kbd id="ultimate-key" hidden>G</kbd></div>
  <small id="ultimate-hint" role="status" hidden></small>
 </div>
-<div id="tools"><button id="sound" title="切换解说声音" aria-label="静音">♫</button><button id="pause" title="暂停 / Esc" hidden>Ⅱ</button><button id="fullscreen" title="全屏">⛶</button></div>
+<div id="tools"><button id="toggle-controls" type="button" title="键位提示 (H)" aria-label="切换键位提示" aria-pressed="false" hidden>?</button><button id="sound" title="切换解说声音" aria-label="静音">♫</button><button id="pause" title="暂停 / Esc" hidden>Ⅱ</button><button id="fullscreen" title="全屏">⛶</button></div>
 <div id="aim-reticle" aria-hidden="true" hidden><i></i></div>
 <div id="opening-tip-cue" aria-hidden="true" hidden><span id="opening-tip-count"></span></div>
 <div id="attack-direction" aria-hidden="true" hidden></div>
@@ -69,14 +69,13 @@
      <header><picture class="lineup-art"><source id="lineup-art-source" media="(min-width:801px)"><img id="lineup-portrait" alt=""></picture><div class="lineup-heading"><div class="lineup-title-row"><h2 id="lineup-name"></h2><span id="lineup-rarity" class="rarity-badge"></span></div><div class="lineup-sub-row"><small id="lineup-role"></small><small id="lineup-tagline"></small></div></div></header>
      <svg id="lineup-radar" viewBox="0 0 260 206" role="img"></svg>
      <p class="lineup-skill"><img id="lineup-skill-icon" alt=""><strong id="lineup-skill-name"></strong></p>
-     <div class="lineup-actions"><button id="lineup-assign" type="button">设为首发</button><button id="lineup-captain" type="button">设为主控</button></div>
+     <div id="lineup-status" class="lineup-status" role="status"></div>
     </section>
    </div>
    <small id="lineup-note" role="status"></small>
   </div>
   <div id="shooting-modes" class="mode-options" aria-label="投篮玩法" hidden><button type="button" data-shooting="free" aria-pressed="true">自由投篮</button><button type="button" data-shooting="timed" aria-pressed="false">限时挑战</button></div>
-  <div id="shooting-setup" hidden><div id="station-distance" class="mode-options" role="group" aria-label="投篮距离"></div><div id="station-angle" class="mode-options" role="group" aria-label="投篮角度"></div></div>
-  <div id="challenge-rack-picks" hidden><h2>全花球架</h2><div id="challenge-rack-options" class="mode-options" role="group" aria-label="选择全花球架"></div></div>
+  <div id="pick-preview" class="pick-preview" hidden><img id="pick-preview-portrait" alt=""><div class="pick-preview-info"><div class="pick-preview-top"><strong id="pick-preview-name"></strong><span id="pick-preview-rarity" class="rarity-badge"></span><small id="pick-preview-role"></small></div><small id="pick-preview-tag"></small></div><div class="pick-preview-skill"><img id="pick-preview-skill-icon" alt=""><span id="pick-preview-skill-name"></span></div></div>
   <div id="pick-grid" class="pick-grid"><div><h2 id="player-pick-title">你的球员</h2><div id="player-picks" class="cards"></div></div><div id="enemy-setup"><h2>你的对手</h2><div id="enemy-picks" class="cards"></div></div></div>
   <small id="lab-menu-hint" hidden></small>
   </div>
@@ -91,7 +90,7 @@
   <div id="load-error" role="alert"></div>
  </section>
 </main>
-<section id="pause-panel" class="veil" hidden><div class="dialog"><h2>暂停</h2><small id="pause-input-hint">点击继续锁定视角</small><div id="shooting-pause" class="station-picker" hidden></div><div id="lab-panel" hidden>
+<section id="pause-panel" class="veil" hidden><div class="dialog"><h2>暂停</h2><small id="pause-input-hint">点击继续锁定视角</small><div id="lab-panel" hidden>
 <div id="lab-tools"><label>测试场景<select id="lab-scene" class="lab-select" aria-label="切换测试场景"></select></label><p id="lab-help"></p>
 <button id="lab-reset">重置当前场景</button></div>
 <div class="lab-issue" id="lab-issue-controls"><select id="lab-issue" aria-label="问题类型"><option>集体停住</option><option>AI 决策不合理</option><option>动作不自然</option><option>球路不合理</option><option>操作没响应</option><option>盖帽或抢断</option><option>瞄准或力度</option><option>镜头不舒服</option><option>声音不同步</option><option>卡顿</option><option>其他</option></select><input id="lab-note" maxlength="500" placeholder="问题说明（可选）" aria-label="问题说明"><button id="lab-mark">标记问题</button><span id="lab-mark-result" role="status"></span></div>
@@ -142,4 +141,4 @@
   if(!window.__lqsnMenuReady)showBootError('菜单加载超时，请检查网络后点击刷新重试。');
  },45000);
 })();
-</script><script type="module" src="play.js?v=54480f6ff7" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>
+</script><script type="module" src="play.js?v=cfb2818033" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>
