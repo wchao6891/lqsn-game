@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=66377ed5ca"><link rel="modulepreload" href="./chunk-PCF0FF83DBDF88.js"><link rel="modulepreload" href="./chunk-PCBB9016A44B83.js"><link rel="modulepreload" href="./chunk-PCBD7879D5123F.js"><link rel="modulepreload" href="./chunk-PCF36371551C3B.js"></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>篮球少女 · 在线试玩</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9B%B9%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="play.css?v=54480f6ff7"><link rel="modulepreload" href="./chunk-M52VYLFM.js"><link rel="modulepreload" href="./chunk-LG4YW6ZY.js"><link rel="modulepreload" href="./chunk-FYMEKHUH.js"><link rel="modulepreload" href="./chunk-ZHJHYKN5.js"><link rel="modulepreload" href="./chunk-2K33VVVV.js"><link rel="modulepreload" href="./chunk-OSZ7DOEH.js"></head>
 <body>
 <canvas id="court" aria-label="篮球场"></canvas>
 <header id="hud" hidden>
@@ -45,40 +45,45 @@
 </div>
 <div id="drill-status" hidden><strong id="drill-station"></strong><span id="drill-record"></span><small id="drill-help"></small></div>
 <div id="practice-tools" hidden><button id="reset-practice">重置球权 <kbd>R</kbd></button><button id="practice-shot">让 AI 投篮 <kbd>T</kbd></button></div>
-<div id="mouse-hint" hidden>点击球场开始<small>鼠标控制视角 · Esc 暂停并释放鼠标</small></div>
+<div id="mouse-hint" hidden>点击球场开球<small>左键锁定视角 · Esc 暂停</small></div>
 <div id="score-flash" role="status" hidden><img class="score-backdrop" src="game-assets/cutin/UI_Img_Match_Cutin_Skill_Bg01.webp" alt=""><div class="score-body"><canvas id="score-portrait" aria-hidden="true"></canvas></div><div class="score-title"><img src="game-assets/cutin/UI_Img_Match_Cutin_Title_Bg_Second.webp" alt=""><div class="score-copy"><span id="score-word">命中</span><span id="score-player"></span></div><strong id="points">+2</strong></div></div>
 <main id="menu" class="veil">
  <section class="setup">
   <div class="setup-content">
   <h1 id="setup-title" hidden>动作测试</h1>
-  <div id="play-modes" class="play-modes" role="group" aria-label="游戏模式"><button data-format="5v5" aria-pressed="true">5v5 全场</button><button data-format="3v3" aria-pressed="false">3v3 半场</button><button data-format="1v1" aria-pressed="false">1v1</button><button data-mode="shooting" aria-pressed="false">投篮</button></div>
+  <div class="setup-topbar">
+   <div id="play-modes" class="play-modes" role="group" aria-label="游戏模式"><button type="button" data-format="5v5" aria-pressed="true">5v5 全场</button><button type="button" data-format="3v3" aria-pressed="false">3v3 半场</button><button type="button" data-format="1v1" aria-pressed="false">1v1</button><button type="button" data-mode="shooting" aria-pressed="false">投篮</button></div>
+   <div id="difficulty-row" class="difficulty-row"><span class="mode-bar-label">AI 难度</span><div id="difficulty-modes" class="mode-options" role="group" aria-label="AI 难度"><button type="button" data-difficulty="rookie" aria-pressed="false">新秀</button><button type="button" data-difficulty="advanced" aria-pressed="false">进阶</button><button type="button" data-difficulty="elite" aria-pressed="false">精英</button><button type="button" data-difficulty="legend" aria-pressed="true">传奇</button></div></div>
+  </div>
   <select id="lab-setup" class="lab-select" aria-label="测试场景" hidden></select>
   <div id="five-setup" hidden>
    <div class="lineup-toolbar">
-    <div id="five-paces" class="mode-options" aria-label="5v5 比赛节奏" hidden><button data-pace="quick" aria-pressed="true">快速赛</button><button data-pace="standard" aria-pressed="false">标准赛</button></div>
+    <div id="five-paces" class="mode-options" aria-label="5v5 比赛节奏" hidden><button type="button" data-pace="quick" aria-pressed="true">快速赛</button><button type="button" data-pace="standard" aria-pressed="false">标准赛</button></div>
     <div class="five-header"><label id="team-name-field">队名<input id="team-name" type="text" placeholder="我的球队" dir="auto"></label><button id="open-standings" type="button">积分榜</button></div>
-    <div id="opponent-modes" class="mode-options" role="group" aria-label="电脑对手选法"><button data-opponent="random" aria-pressed="true">随机对手</button><button data-opponent="manual" aria-pressed="false">手选对手</button></div>
+    <div id="opponent-modes" class="mode-options" role="group" aria-label="对手选择"><button type="button" data-opponent="random" aria-pressed="true">随机劲旅</button><button type="button" data-opponent="manual" aria-pressed="false">手选阵容</button><button type="button" data-opponent-team="neon-bolt" aria-pressed="false">霓虹闪电队</button><button type="button" data-opponent-team="iron-bastion" aria-pressed="false">铁壁禁区队</button><button type="button" data-opponent-team="arc-storm" aria-pressed="false">外线风暴队</button><button type="button" data-opponent-team="crown-legends" aria-pressed="false">冠军传奇队</button></div>
    </div>
    <div class="lineup-layout">
-    <section class="lineup-board" aria-label="首发站位"><div id="lineup-sides" class="mode-options" role="group" aria-label="正在布阵的球队" hidden><button data-lineup-side="0" aria-pressed="true">我方</button><button data-lineup-side="1" aria-pressed="false">对手</button></div><div id="lineup-court" role="group" aria-label="半场五个位置"></div></section>
+    <section class="lineup-board" aria-label="首发站位"><div id="lineup-sides" class="mode-options" role="group" aria-label="正在布阵的球队" hidden><button type="button" data-lineup-side="0" aria-pressed="true">我方</button><button type="button" data-lineup-side="1" aria-pressed="false">对手</button></div><div id="lineup-court" role="group" aria-label="半场五个位置"></div></section>
     <section class="lineup-roster" aria-label="球员"><div id="lineup-players" role="group" aria-label="查看球员能力"></div></section>
     <section class="lineup-detail" aria-labelledby="lineup-name">
-     <header><picture class="lineup-art"><source id="lineup-art-source" media="(min-width:801px)"><img id="lineup-portrait" alt=""></picture><div><h2 id="lineup-name"></h2><small id="lineup-role"></small></div></header>
-     <svg id="lineup-radar" viewBox="0 0 236 186" role="img"></svg>
+     <header><picture class="lineup-art"><source id="lineup-art-source" media="(min-width:801px)"><img id="lineup-portrait" alt=""></picture><div class="lineup-heading"><div class="lineup-title-row"><h2 id="lineup-name"></h2><span id="lineup-rarity" class="rarity-badge"></span></div><div class="lineup-sub-row"><small id="lineup-role"></small><small id="lineup-tagline"></small></div></div></header>
+     <svg id="lineup-radar" viewBox="0 0 260 206" role="img"></svg>
      <p class="lineup-skill"><img id="lineup-skill-icon" alt=""><strong id="lineup-skill-name"></strong></p>
-     <div class="lineup-actions"><button id="lineup-assign" type="button">安排首发</button><button id="lineup-captain" type="button">设为主控</button></div>
+     <div class="lineup-actions"><button id="lineup-assign" type="button">设为首发</button><button id="lineup-captain" type="button">设为主控</button></div>
     </section>
    </div>
    <small id="lineup-note" role="status"></small>
   </div>
-  <div id="shooting-modes" class="mode-options" aria-label="投篮玩法" hidden><button data-shooting="free" aria-pressed="true">自由投篮</button><button data-shooting="timed" aria-pressed="false">限时挑战</button></div>
+  <div id="shooting-modes" class="mode-options" aria-label="投篮玩法" hidden><button type="button" data-shooting="free" aria-pressed="true">自由投篮</button><button type="button" data-shooting="timed" aria-pressed="false">限时挑战</button></div>
   <div id="shooting-setup" hidden><div id="station-distance" class="mode-options" role="group" aria-label="投篮距离"></div><div id="station-angle" class="mode-options" role="group" aria-label="投篮角度"></div></div>
   <div id="challenge-rack-picks" hidden><h2>全花球架</h2><div id="challenge-rack-options" class="mode-options" role="group" aria-label="选择全花球架"></div></div>
   <div id="pick-grid" class="pick-grid"><div><h2 id="player-pick-title">你的球员</h2><div id="player-picks" class="cards"></div></div><div id="enemy-setup"><h2>你的对手</h2><div id="enemy-picks" class="cards"></div></div></div>
   <small id="lab-menu-hint" hidden></small>
   </div>
-  <input id="record-match" type="checkbox" hidden><small id="record-last" role="status" hidden></small>
-  <div class="start-row"><button id="start" class="primary" disabled>正在打开菜单…</button></div>
+  <div class="setup-footer">
+   <input id="record-match" type="checkbox" hidden><small id="record-last" role="status" hidden></small>
+   <div class="start-row"><button id="start" class="primary" disabled>正在打开菜单…</button></div>
+  </div>
   <div id="load-progress" class="load-progress" data-indeterminate="true" role="progressbar" aria-label="加载进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
    <div class="load-progress-meta"><span id="load-progress-label">正在加载菜单程序…</span><b id="load-progress-pct"></b></div>
    <div class="load-progress-track"><i id="load-progress-fill"></i></div>
@@ -86,13 +91,13 @@
   <div id="load-error" role="alert"></div>
  </section>
 </main>
-<section id="pause-panel" class="veil" hidden><div class="dialog"><h2>稍作休息</h2><small id="pause-input-hint">继续比赛后，鼠标控制视角</small><div id="shooting-pause" class="station-picker" hidden></div><div id="lab-panel" hidden>
+<section id="pause-panel" class="veil" hidden><div class="dialog"><h2>暂停</h2><small id="pause-input-hint">点击继续锁定视角</small><div id="shooting-pause" class="station-picker" hidden></div><div id="lab-panel" hidden>
 <div id="lab-tools"><label>测试场景<select id="lab-scene" class="lab-select" aria-label="切换测试场景"></select></label><p id="lab-help"></p>
 <button id="lab-reset">重置当前场景</button></div>
-<div class="lab-issue" id="lab-issue-controls"><select id="lab-issue" aria-label="问题类型"><option>集体停住</option><option>AI 决策不合理</option><option>动作不自然</option><option>球路不合理</option><option>操作没响应</option><option>盖帽或抢断</option><option>瞄准或力度</option><option>镜头不舒服</option><option>声音不同步</option><option>卡顿</option><option>其他</option></select><input id="lab-note" maxlength="500" placeholder="刚才哪里不对（可选）" aria-label="问题说明"><button id="lab-mark">标记刚才的问题</button><span id="lab-mark-result" role="status"></span></div>
+<div class="lab-issue" id="lab-issue-controls"><select id="lab-issue" aria-label="问题类型"><option>集体停住</option><option>AI 决策不合理</option><option>动作不自然</option><option>球路不合理</option><option>操作没响应</option><option>盖帽或抢断</option><option>瞄准或力度</option><option>镜头不舒服</option><option>声音不同步</option><option>卡顿</option><option>其他</option></select><input id="lab-note" maxlength="500" placeholder="问题说明（可选）" aria-label="问题说明"><button id="lab-mark">标记问题</button><span id="lab-mark-result" role="status"></span></div>
 <small id="lab-save-state"></small><button id="lab-retry">重试保存</button>
-</div><p id="mouse-error" role="alert"></p><button id="resume" class="primary">继续比赛</button><button id="restart">重新开局</button><button id="choose">重新选人</button></div></section>
-<section id="finish" class="veil" hidden><div class="dialog"><small id="finish-kicker">全场结束</small><h2 id="finish-title"></h2><small id="finish-teams" hidden></small><strong id="finish-score"></strong><small id="finish-saved" role="status" hidden></small><div id="finish-box-score" hidden></div><section id="match-highlights" hidden></section><button id="finish-standings" type="button" hidden>查看本机积分榜</button><section id="challenge-result" hidden><p id="challenge-summary"></p><div id="challenge-board"><h3>本机角色榜</h3><ol id="challenge-ranks"></ol><small id="challenge-save" role="status"></small></div></section><button id="again" class="primary">再来一场</button><button id="finish-choose">重新选人</button></div></section>
+</div><p id="mouse-error" role="alert"></p><button id="resume" class="primary">继续比赛</button><button id="restart">重新开局</button><button id="choose">返回大厅</button></div></section>
+<section id="finish" class="veil" hidden><div class="dialog"><div class="finish-hero"><small id="finish-kicker">全场结束</small><h2 id="finish-title"></h2><small id="finish-teams" hidden></small><strong id="finish-score"></strong><small id="finish-saved" role="status" hidden></small></div><section id="finish-mvp" class="finish-mvp" hidden><div class="mvp-badge">全场 MVP</div><div class="mvp-body"><img id="mvp-portrait" alt=""><div class="mvp-info"><div class="mvp-head"><strong id="mvp-name"></strong><span id="mvp-team"></span></div><div id="mvp-stats" class="mvp-stats"></div></div></div></section><div id="finish-box-score" hidden></div><section id="match-highlights" hidden></section><section id="challenge-result" hidden><p id="challenge-summary"></p><div id="challenge-board"><h3>本机角色榜</h3><ol id="challenge-ranks"></ol><small id="challenge-save" role="status"></small></div></section><div class="finish-actions"><button id="finish-standings" type="button" hidden>本机积分榜</button><button id="again" class="primary">再来一场</button><button id="finish-choose">返回大厅</button></div></div></section>
 <section id="highlight-player" aria-label="赛后高光回看" hidden>
  <div id="highlight-caption" role="status"></div>
  <div class="highlight-controls"><button id="highlight-play" type="button" hidden>重播</button><button id="highlight-camera" type="button" aria-pressed="false">侧面镜头</button><button id="highlight-save" type="button">保存画面</button><button id="highlight-record" type="button" hidden>保存视频</button><button id="highlight-close" type="button">返回结算</button><small id="highlight-save-status" role="status"></small></div>
@@ -137,4 +142,4 @@
   if(!window.__lqsnMenuReady)showBootError('菜单加载超时，请检查网络后点击刷新重试。');
  },45000);
 })();
-</script><script type="module" src="play.js?v=571d64ca27" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>
+</script><script type="module" src="play.js?v=54480f6ff7" onerror="window.__lqsnBootFail&&window.__lqsnBootFail('菜单程序下载失败，请检查网络后点击刷新重试。')"></script></body></html>
